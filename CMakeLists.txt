@@ -46,6 +46,7 @@ Include/Model/Runs/Model.RunResult.h
 Include/Model/Runs/Model.RunSignals.h
 Include/Model/Plots/Model.PlotCollection.h
 Include/Model/Plots/Model.Plot.h
+Include/Model/Plots/Model.Graph.h
 Include/Model/Common/Model.ErrorReporter.h
 Include/Model/Common/Model.Functions.h
 Include/Model/Common/Model.Object.h
@@ -66,6 +67,7 @@ Source/Model/Runs/Model.RunResult.cpp
 Source/Model/Runs/Model.RunSignals.cpp
 Source/Model/Plots/Model.PlotCollection.cpp
 Source/Model/Plots/Model.Plot.cpp
+Source/Model/Plots/Model.Graph.cpp
 Source/Model/Common/Model.ErrorReporter.cpp
 Source/Model/Common/Model.Functions.cpp
 Source/Model/Common/Model.Object.cpp

@@ -155,6 +155,7 @@ namespace ARP::Model
 	public:
 		RunResult() = default;
 		RunResult(string iFilePath, ProtocolType iProtocolType = ProtocolTypeEnum::T128);
+		RunResult(ifstream& iFile, ProtocolType iProtocolType = ProtocolTypeEnum::T128);
 		RunResult(const rj::Value& doc) : Object() { Load(doc); };
 
 		// Сохранить в json-документ
@@ -210,6 +211,7 @@ namespace ARP::Model
 		void ReadT117Protocol(ifstream& iFile);
 		void ReadT128Protocol(ifstream& iFile);
 
+		void ReadFile(ifstream& iFile, ProtocolType iProtocolType = ProtocolTypeEnum::T128);
 	};
 	using RunResultPtr = std::shared_ptr<RunResult>;
 }

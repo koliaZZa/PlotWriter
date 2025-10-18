@@ -2,7 +2,7 @@
 #include "Include/Model/Common/Model.Object.h"
 #include "Include/Model/Common/Model.Functions.h"
 #include "Include/Model/Runs/Model.RunResult.h"
-#include "Include/Model/Plots/Model.Plot.h"
+#include "Include/Model/Plots/Model.Graph.h"
 
 namespace ARP::Model
 {
@@ -17,22 +17,20 @@ namespace ARP::Model
 		~PlotCollection() = default;
 
 		// Сохранить в json-документ
-		virtual rj::Document Save(rj::MemoryPoolAllocator<>& allocator) override;
+		virtual rj::Document Save(rj::MemoryPoolAllocator<>& allocator) override { return rj::Document(); };
 		// Загрузить из json-документа
-		virtual void Load(const rj::Value& doc) override;
+		virtual void Load(const rj::Value& doc) override {};
 
 		// Открыть пуск из файла
 		string OpenRun(string path, ProtocolType protocolType = ProtocolTypeEnum::T117);
+		// Открыть пуски из одного файла
+		void OpenRunsFromFile(string path, ProtocolType protocolType = ProtocolTypeEnum::T117);
 		// Добавить существующий пуск в коллекцию
 		void AddRun(RunResultPtr ipRun);
 		// Прочитать расшифровку каналов из файла
 		void ReadChannels(string path);
 		// Прочитать список комментариев к пускам
 		void ReadRunsList(string path);
-		// Показать пуск
-		void ShowRun(string iRunName, bool show);
-		// Показать все пуски
-		void ShowRuns(bool show);
 		// Удалить пуск
 		void DeleteRun(string iRunName);
 		// Переместить график в списке выше
@@ -46,10 +44,7 @@ namespace ARP::Model
 		void WriteRuns();
 
 		// Создать модель графика
-		PlotPtr CreatePlot(string iTitle, string iyAxisName);
-		// Удалить график
-		void DeletePlot(string iplotName);
-
+		DrawGraphsPtr CreatePlot(string iTitle, string iyAxisName);
 		// Установить тип интерполяции
 		void SetInterpolType(InterpolTypeEnum iType) { interpolType = iType; };
 		// Установить ось X
@@ -68,14 +63,14 @@ namespace ARP::Model
 		// Получить тип интерполяции
 		InterpolTypeEnum GetInterpolType() const { return interpolType; };
 		// Получить модели графиков
-		const vector<PlotPtr>& GetPlots() const { return plots; };
+		const vector<DrawGraphsPtr>& GetPlots() const { return plots; };
 
 	protected:
 		// Добавить пуск на график
-		PlotLinePtr AddRunOnPlot(RunResultPtr iRun, PlotPtr iPlot);
+		void AddRunOnPlot(RunResultPtr iRun, DrawGraphsPtr iPlot);
 
 		vector<RunResultPtr> runs;				// Список пусков
-		vector<PlotPtr> plots;					// Список графиков
+		vector<DrawGraphsPtr> plots;					// Список графиков
 		vector<ChannelInfo> channels;			// Расшифровка каналов
 		vector<RunInfo> runsComments;			// Комментарии к пускам
 

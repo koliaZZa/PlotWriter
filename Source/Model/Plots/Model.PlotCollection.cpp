@@ -2,74 +2,6 @@
 
 namespace ARP::Model
 {
-	rj::Document PlotCollection::Save(rj::MemoryPoolAllocator<>& allocator)
-	{
-		rj::Document doc;
-		doc.SetObject();
-
-		// Сохранение общих данных
-		rj::Value json_val;
-		rju::AddString(doc, allocator, "xAxisName", xAxisName);
-		rju::AddInt(doc, allocator, "Line width", lineWidth);
-
-		// Сохранение типа интерполяции
-		switch (interpolType)
-		{
-		case InterpolTypeEnum::Linear:
-			json_val.SetString("Linear", allocator);
-			break;
-		case InterpolTypeEnum::Quadratic:
-			json_val.SetString("Quadratic", allocator);
-			break;
-		case InterpolTypeEnum::Cubic:
-			json_val.SetString("Cubic", allocator);
-			break;
-		default:
-			break;
-		}
-		doc.AddMember("Interpolation", json_val, allocator);
-
-		// Сохранение результатов пусков
-		rj::Value arrRuns(rj::kArrayType);
-		for (auto& run : runs)
-			arrRuns.PushBack(run->Save(allocator), allocator);
-		doc.AddMember("RunResults", arrRuns, allocator);
-
-		// Сохранение графиков
-		rj::Value arrPlots(rj::kArrayType);
-		for (auto& plot : plots)
-			arrPlots.PushBack(plot->Save(allocator), allocator);
-		doc.AddMember("Plots", arrPlots, allocator);
-
-		return doc;
-	}
-	void PlotCollection::Load(const rj::Value& doc)
-	{
-		// Считывание общих данных
-		bool integrity = true;
-		integrity = integrity && rju::ReadString(doc, "xAxisName", xAxisName);
-		integrity = integrity && rju::ReadInt(doc, "Line width", lineWidth);
-
-
-		// Считывание типа интерполяции
-		string interpol;
-		integrity = integrity && rju::ReadString(doc, "Interpolation", interpol);
-		if (interpol == "Linear")		interpolType = InterpolTypeEnum::Linear;
-		else if (interpol == "Quadratic")	interpolType = InterpolTypeEnum::Quadratic;
-		else if (interpol == "Cubic")		interpolType = InterpolTypeEnum::Cubic;
-		else								interpolType = InterpolTypeEnum::Linear;
-
-		if (!integrity) ErrorReporter::PushMessage(ErrorType::FileReading, "Plot collection " + name, "Missing additional data");
-
-		// Считывание результатов пусков
-		for (auto& item : doc["RunResults"].GetArray())
-			runs.push_back(std::make_shared<RunResult>(item));
-
-		// Считывание графиков
-		for (auto& item : doc["Plots"].GetArray())
-			plots.push_back(std::make_shared<Plot>(item));
-
-	}
 	string PlotCollection::OpenRun(string path, ProtocolType protocolType)
 	{
 		ARP::Model::RunResultPtr pRun = std::make_shared<ARP::Model::RunResult>(path, protocolType);
@@ -77,6 +9,14 @@ namespace ARP::Model
 			return "";
 		runs.push_back(pRun);
 		return pRun->GetName();
+	}
+
+	void PlotCollection::OpenRunsFromFile(string path, ProtocolType protocolType)
+	{
+		ifstream iFile(path);
+		if (!iFile) return;
+		while(!iFile.eof())
+			runs.push_back(std::make_shared<ARP::Model::RunResult>(iFile, protocolType));
 	}
 
 	void PlotCollection::AddRun(RunResultPtr ipRun)
@@ -133,49 +73,6 @@ namespace ARP::Model
 		iFile.close();
 	}
 
-	void PlotCollection::ShowRun(string iRunName, bool show)
-	{
-		RunResultPtr pRun = GetRun(iRunName);
-		if (!pRun) return;
-		pRun->isActive = show;
-
-		// Добавить пуск на каждый график
-		for (auto& plot : plots)
-		{
-			// Попытка переключить видимость линии пуска
-			if (!plot->SignalShowLine(iRunName, show))
-			{
-				// Если неудачно, значит пуска нет;
-				// Если надо скрыть, то ничего не предпринимать
-				if (!show) continue;
-				// Иначе добавить пуск на график
-				plot->SignalAddLine(AddRunOnPlot(pRun, plot));
-			}
-		}
-	}
-
-	void PlotCollection::ShowRuns(bool show)
-	{
-		for (auto& pRun : runs)
-		{
-			pRun->isActive = show;
-			// Добавить пуск на каждый график
-			for (auto& plot : plots)
-			{
-				// Попытка переключить видимость линии пуска
-				if (!plot->SignalShowLine(pRun->GetName(), show))
-				{
-					// Если неудачно, значит пуска нет;
-					// Если надо скрыть, то ничего не предпринимать
-					if (!show) continue;
-					// Иначе добавить пуск на график
-					plot->SignalAddLine(AddRunOnPlot(pRun, plot));
-				}
-			}
-		}
-	}
-
-
 	void PlotCollection::DeleteRun(string iRunName)
 	{
 		if (runs.empty()) return;
@@ -184,38 +81,18 @@ namespace ARP::Model
 			runs.erase(it);
 	}
 
-	PlotPtr PlotCollection::CreatePlot(string iTitle, string iyAxisName)
+	DrawGraphsPtr PlotCollection::CreatePlot(string iTitle, string iyAxisName)
 	{
-		PlotPtr plot = std::make_shared<Plot>(iTitle, xAxisName, iyAxisName, lineWidth, interpolType);
+		DrawGraphsPtr plot = DrawGraphs::CreateDrawGraphs(iTitle, xAxisName, iyAxisName);
 		for (auto& run : runs)
 			AddRunOnPlot(run, plot);
 		plots.push_back(plot);
 		return plot;
 	}
 
-	void PlotCollection::DeletePlot(string iplotName)
-	{
-		auto plotIter = std::find_if(plots.begin(), plots.end(), [iplotName](PlotPtr pPlot) { return pPlot->name == iplotName; });
-		if (plotIter != plots.end())
-			plots.erase(plotIter);
-	}
-
 	void PlotCollection::SetXAxis(string ixAxis)
 	{
 		xAxisName = ixAxis;
-		for (auto& plot : plots)
-		{
-			plot->SetXAxis(ixAxis);
-			for (auto& run : runs)
-			{
-				if (!run->isActive) continue;
-				auto xQuantity = run->GetQuantity(ixAxis);
-				if (xQuantity.IsEmpty()) continue;
-				PlotLinePtr line = plot->GetLine(run->GetName());
-				if (!line) continue;
-				line->SetXAxis(xQuantity);
-			}
-		}
 	}
 
 	RunResultPtr PlotCollection::GetRun(string iRunName) const
@@ -227,7 +104,7 @@ namespace ARP::Model
 		else return nullptr;
 	}
 
-	PlotLinePtr PlotCollection::AddRunOnPlot(RunResultPtr iRun, PlotPtr iPlot)
+	void PlotCollection::AddRunOnPlot(RunResultPtr iRun, DrawGraphsPtr iPlot)
 	{
 		auto xQuantity = iRun->GetQuantity(xAxisName);				// Величина из пуска, соответствующая оси X графика
 		auto yQuantity = iRun->GetQuantity(iPlot->GetYAxis());		// Величина из пуска, соответствующая оси Y графика
@@ -274,7 +151,7 @@ namespace ARP::Model
 		for (auto& run : runs)
 		{
 			run->CalcNominalParams();
-			run->ApplyGamma();
+			//run->ApplyGamma();
 			run->FormTitle();
 		}
 	}

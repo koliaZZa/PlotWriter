@@ -5,30 +5,12 @@ namespace ARP::Model
 	RunResult::RunResult(string iFilePath, ProtocolType iProtocolType): protocolType{ iProtocolType }
 	{
 		ifstream iFile(iFilePath);
-		if (iFile)
-		{
-			switch (iProtocolType)
-			{
-			case ProtocolTypeEnum::T117:
-			{
-				ReadT117Protocol(iFile);
-				break;
-			}
-			case ProtocolTypeEnum::T128:
-			{
-				ReadT128Protocol(iFile);
-				break;
-			}
-			default:
-				break;
-			}
-		}
-		else ErrorReporter::PushMessage(ErrorType::FileReading, "RunResult " + name, "File " + iFilePath + " didn't open");
+		ReadFile(iFile, iProtocolType);
 		iFile.close();
-
-		if (quantities.size())
-			pointsNum = quantities.begin()->GetSize();
-		else ErrorReporter::PushMessage(ErrorType::FileReading, "RunResult " + name, "No data read");
+	}
+	RunResult::RunResult(ifstream& iFile, ProtocolType iProtocolType) : protocolType{ iProtocolType }
+	{
+		ReadFile(iFile, iProtocolType);
 	}
 	rj::Document RunResult::Save(rj::MemoryPoolAllocator<>& allocator)
 	{
@@ -187,7 +169,11 @@ namespace ARP::Model
 			vector<double> data;
 			quantitiesNames.push_back(name);
 			for (size_t row = 1; row < table.size(); row++)
-				data.push_back(std::stof(table[row][col]));
+			{
+				if (table[row][col] != "-")
+					data.push_back(std::stof(table[row][col]));
+				else data.push_back(0.0);
+			}
 			quantities.emplace_back(name, std::move(data));
 		}
 	}
@@ -219,15 +205,41 @@ namespace ARP::Model
 		std::getline(iFile, line);
 		vector<string> vTmp = Tokenize(line);
 		size_t i = 0;
-		while (vTmp[i] != "Протокол")
+		while (vTmp[i] != u8"Пуск")
 		{
 			i++;
 			if (i >= vTmp.size())
 				break;
 		}
 		// Сохраняем номер протокола как название пуска
-		name = vTmp[i + 1].substr(0, vTmp[i + 1].size() - 2);
-		ParseTable(iFile);// Считывание таблицы с данными
+		name = vTmp[i + 1].substr(0, vTmp[i + 1].size() - 1);
+		ParseTable(iFile);		// Считывание таблицы с данными
+	}
+
+	void RunResult::ReadFile(ifstream& iFile, ProtocolType iProtocolType)
+	{
+		if (iFile)
+		{
+			switch (iProtocolType)
+			{
+			case ProtocolTypeEnum::T117:
+			{
+				ReadT117Protocol(iFile);
+				break;
+			}
+			case ProtocolTypeEnum::T128:
+			{
+				ReadT128Protocol(iFile);
+				break;
+			}
+			default:
+				break;
+			}
+		}
+		else ErrorReporter::PushMessage(ErrorType::FileReading, "RunResult " + name, "File didn't open");
+		if (quantities.size())
+			pointsNum = quantities.begin()->GetSize();
+		else ErrorReporter::PushMessage(ErrorType::FileReading, "RunResult " + name, "No data read");
 	}
 
 	void RunResult::FormTitle(string locale)
