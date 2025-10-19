@@ -42,13 +42,8 @@ namespace ARP::Model
 
 		void WriteRuns();
 
-		// Добавить пуски на графики
-		void DisplayRuns();
-
-		void PrintPlots(string path);
-
 		// Создать модель графика
-		void CreatePlot(std::string iyName, std::string iTitle = "");
+		void CreatePlot(std::string iyName, string path, std::string iTitle = "");
 		// Установить тип интерполяции
 		void SetInterpolType(InterpolTypeEnum iType) { interpolType = iType; };
 		// Установить ось X

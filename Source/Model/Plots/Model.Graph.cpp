@@ -2,7 +2,7 @@
 
 namespace ARP::Model
 {
-	int GetAutoColor(int index) {
+	int DrawGraphs::GetAutoColor(int index) {
 		// Используем красивую палитру ROOT
 		int palette[] = { kRed, kBlue, kGreen, kMagenta, kCyan, kOrange, kViolet, kSpring, kTeal, kPink };
 		return palette[index];
@@ -21,7 +21,7 @@ namespace ARP::Model
 		// Создаем новые оси в центре
 		Double_t xmin = mg->GetXaxis()->GetXmin();
 		Double_t xmax = mg->GetXaxis()->GetXmax();
-		Double_t ymin = mg->GetYaxis()->GetXmin();
+		Double_t ymin = mg->GetYaxis()->GetXmin() > 0.0 ? 0.0 : mg->GetYaxis()->GetXmin();
 		Double_t ymax = mg->GetYaxis()->GetXmax();
 
 		// Линия оси X (горизонтальная линия при y=0)
@@ -299,7 +299,7 @@ namespace ARP::Model
 		canvas->Update();
 
 		// Сохраняем в файл
-		canvas->SaveAs("multiple_graphs.png");
+		canvas->SaveAs("./multiple_graphs.png");
 		//canvas->SaveAs("multiple_graphs.pdf");
 		//canvas->SaveAs("multiple_graphs.root");
 
@@ -326,9 +326,10 @@ namespace ARP::Model
 		// настройка типа маркера
 		graph->SetMarkerStyle(20);
 		// настройка размера маркера
-		graph->SetMarkerSize(0.5);
+		graph->SetMarkerSize(1);
 		// настройка цвета
-		graph->SetMarkerColor(GetAutoColor(count++));
+		graph->SetMarkerColor(GetAutoColor(countLines));
+		graph->SetLineColor(GetAutoColor(countLines++));
 		// установка названия графика
 		graph->SetTitle(grname.c_str());
 
@@ -337,8 +338,11 @@ namespace ARP::Model
 	void DrawGraphs::DrawAndPrint(string path)
 	{
 		// Рисуем мультиграф
-		multiGraph->Draw("ACP pmc plc");  // A - оси, L - линии, C - курвы, P - точки, pmc - автоцвет точек, plc - автоцвет линий
+		double max = multiGraph->GetYaxis()->GetXmax();
+		multiGraph->GetYaxis()->SetRangeUser(0.0, max);
 
+		multiGraph->Draw("ACP");  // A - оси, L - линии, C - курвы, P - точки, pmc - автоцвет точек, plc - автоцвет линий
+		
 		canvas->BuildLegend();
 		// Отрисовываем красивые декартовы координаты
 		setupCentralAxes(multiGraph);

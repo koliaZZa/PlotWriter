@@ -44,8 +44,6 @@ namespace ARP::Model
 		std::string xname = "x";
 		std::string yname = "y";
 
-		int count = 0;
-
 		TMultiGraph* multiGraph = nullptr;
 		TCanvas* canvas = nullptr;
 
@@ -79,5 +77,7 @@ namespace ARP::Model
 		void Init();
 
 		static inline size_t count{0};
+
+		size_t countLines{ 0 };
 	};
 }

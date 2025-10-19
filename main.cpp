@@ -17,8 +17,12 @@ inline void FlushErrorMessages(std::ofstream& iFile)
 void Run()
 {
 	std::ofstream log("log.txt");
-	std::vector<double> machs{ 0.4, 0.6, 0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.2, 1.4 };
-	std::vector<std::string> quantities{ "Cxf1", "Cy1", "Cz1", "mx1", "my1", "mz1", "Xcp1", "Cxf2", "Cy2", "Cz2", "mx2", "my2", "mz2", "Xcp2" };
+	//std::vector<double> machs{ 0.4, 0.6, 0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.2, 1.4 };
+	//std::vector<std::string> quantities{ "Cxf1", "Cy1", "Cz1", "mx1", "my1", "mz1", "Xcp1", "Cxf2", "Cy2", "Cz2", "mx2", "my2", "mz2", "Xcp2" };
+
+	std::vector<double> machs{ 0.4, 0.6 };
+	std::vector<std::string> quantities{ "Cxf1", "Cxf2" };
+
 
 	Model::PlotCollection allRuns;
 	allRuns.OpenRunsFromFile("./data/balances/S5 T-128 Report Runs.txt", Model::ProtocolTypeEnum::T128);
@@ -36,18 +40,10 @@ void Run()
 			if ((run->runType == Model::RunTypeEnum::AlphaVar) && (run->GetMachNom() == mach))
 				plotColls.back().AddRun(run);
 		}
-	}
-	
-	for (auto& plotColl : plotColls)
-	{
 		for (auto& quantity : quantities)
 		{
-			plotColl.CreatePlot(quantity);
+			plotColls.back().CreatePlot(quantity, "./graphs/balances/M=" + Model::to_str(mach, 3));
 		}
-		plotColl.DisplayRuns();
-		auto machOpt = plotColl.GetLastRun()->GetMachNom();
-		double mach = machOpt.has_value() ? machOpt.value() : 0.0;
-		plotColl.PrintPlots("./graphs/balances/M=" + Model::to_str(mach, 3));
 	}
 
 	FlushErrorMessages(log);
@@ -58,7 +54,7 @@ int main() {
 	TApplication app("app", nullptr, nullptr);
 
 	// Для проверки
-	//drawMultipleGraphs();
+	//Model::drawMultipleGraphs();
 	Run();
 
 	app.Run();

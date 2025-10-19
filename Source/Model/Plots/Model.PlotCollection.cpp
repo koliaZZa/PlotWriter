@@ -81,7 +81,7 @@ namespace ARP::Model
 			runs.erase(it);
 	}
 
-	void PlotCollection::CreatePlot(std::string iyName, std::string iTitle)
+	void PlotCollection::CreatePlot(std::string iyName, string path, std::string iTitle)
 	{
 		if (runs.empty()) return;
 		Quantity x{ (*runs.begin())->GetQuantity(xAxisName) };
@@ -90,7 +90,13 @@ namespace ARP::Model
 		if (iTitle.empty()) iTitle = y.title;
 
 		DrawGraphsPtr plot = std::make_shared<DrawGraphs>(iTitle, x.title, y.title, xAxisName, iyName);
-		plots.push_back(plot);
+		string yname = plot->yname;
+		for (auto& run : runs)
+		{
+			Quantity x{ run->GetQuantity(xAxisName) };
+			plot->AddLine(x, run->GetQuantity(yname), run->title);
+		}
+		plot->DrawAndPrint(path);
 	}
 
 	void PlotCollection::SetXAxis(string ixAxis)
@@ -105,25 +111,6 @@ namespace ARP::Model
 		if (it != runs.end())
 			return *it;
 		else return nullptr;
-	}
-
-	void PlotCollection::DisplayRuns()
-	{
-		for (auto& plot : plots)
-		{
-			string y = plot->yname;
-			for (auto& run : runs)
-			{
-				Quantity x{ run->GetQuantity(xAxisName) };
-				plot->AddLine(x, run->GetQuantity(y), run->title);
-			}
-		}
-	}
-
-	void PlotCollection::PrintPlots(string path)
-	{
-		for (auto& plot : plots)
-			plot->DrawAndPrint(path);
 	}
 
 	void PlotCollection::MovePlotUp(size_t index)
