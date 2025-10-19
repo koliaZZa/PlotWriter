@@ -6,13 +6,12 @@
 
 namespace ARP::Model
 {
-
 	// Модель коллекции графиков
 	class PlotCollection : public Object
 	{
 	public:
 		PlotCollection() : Object("Plot collection", "Plot collection") {};
-		PlotCollection(int iLineWidth) : Object("Plot collection", "Plot collection") { lineWidth = iLineWidth; };
+		PlotCollection(string ixAxisName) : Object("Plot collection", "Plot collection"), xAxisName{ ixAxisName } {};
 		PlotCollection(const rj::Value& doc) : Object("Plot collection", "Plot collection") { Load(doc); };
 		~PlotCollection() = default;
 
@@ -43,8 +42,13 @@ namespace ARP::Model
 
 		void WriteRuns();
 
+		// Добавить пуски на графики
+		void DisplayRuns();
+
+		void PrintPlots(string path);
+
 		// Создать модель графика
-		DrawGraphsPtr CreatePlot(string iTitle, string iyAxisName);
+		void CreatePlot(std::string iyName, std::string iTitle = "");
 		// Установить тип интерполяции
 		void SetInterpolType(InterpolTypeEnum iType) { interpolType = iType; };
 		// Установить ось X
@@ -66,11 +70,8 @@ namespace ARP::Model
 		const vector<DrawGraphsPtr>& GetPlots() const { return plots; };
 
 	protected:
-		// Добавить пуск на график
-		void AddRunOnPlot(RunResultPtr iRun, DrawGraphsPtr iPlot);
-
 		vector<RunResultPtr> runs;				// Список пусков
-		vector<DrawGraphsPtr> plots;					// Список графиков
+		vector<DrawGraphsPtr> plots;			// Список графиков
 		vector<ChannelInfo> channels;			// Расшифровка каналов
 		vector<RunInfo> runsComments;			// Комментарии к пускам
 

@@ -320,7 +320,7 @@ namespace ARP::Model
 
 		multiGraph->Add(graph);
 	}
-	void DrawGraphs::DrawAndPrint()
+	void DrawGraphs::DrawAndPrint(string path)
 	{
 		// Рисуем мультиграф
 		multiGraph->Draw("ACP pmc plc");  // A - оси, L - линии, C - курвы, P - точки, pmc - автоцвет точек, plc - автоцвет линий
@@ -335,7 +335,8 @@ namespace ARP::Model
 		canvas->Update();
 
 		// Сохраняем в файл
-		canvas->SaveAs("multiple_graphs.png");
+		path += "/" + yname + ".png";
+		canvas->SaveAs(path.c_str());
 		//canvas->SaveAs("multiple_graphs.pdf");
 
 		//canvas->Close();

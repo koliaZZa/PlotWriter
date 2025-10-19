@@ -81,13 +81,16 @@ namespace ARP::Model
 			runs.erase(it);
 	}
 
-	DrawGraphsPtr PlotCollection::CreatePlot(string iTitle, string iyAxisName)
+	void PlotCollection::CreatePlot(std::string iyName, std::string iTitle)
 	{
-		DrawGraphsPtr plot = DrawGraphs::CreateDrawGraphs(iTitle, xAxisName, iyAxisName);
-		for (auto& run : runs)
-			AddRunOnPlot(run, plot);
+		if (runs.empty()) return;
+		Quantity x{ (*runs.begin())->GetQuantity(xAxisName) };
+		Quantity y{ (*runs.begin())->GetQuantity(iyName) };
+
+		if (iTitle.empty()) iTitle = y.title;
+
+		DrawGraphsPtr plot = DrawGraphs::CreateDrawGraphs(iTitle, x.title, y.title, xAxisName, iyName);
 		plots.push_back(plot);
-		return plot;
 	}
 
 	void PlotCollection::SetXAxis(string ixAxis)
@@ -104,13 +107,23 @@ namespace ARP::Model
 		else return nullptr;
 	}
 
-	void PlotCollection::AddRunOnPlot(RunResultPtr iRun, DrawGraphsPtr iPlot)
+	void PlotCollection::DisplayRuns()
 	{
-		auto xQuantity = iRun->GetQuantity(xAxisName);				// Величина из пуска, соответствующая оси X графика
-		auto yQuantity = iRun->GetQuantity(iPlot->GetYAxis());		// Величина из пуска, соответствующая оси Y графика
-		if (!xQuantity.IsEmpty() && !yQuantity.IsEmpty())
-			return iPlot->AddLine(iRun->title, xQuantity, yQuantity);
-		return nullptr;
+		for (auto& plot : plots)
+		{
+			string y = plot->yname;
+			for (auto& run : runs)
+			{
+				Quantity x{ run->GetQuantity(xAxisName) };
+				plot->AddLine(x, run->GetQuantity(y), run->title);
+			}
+		}
+	}
+
+	void PlotCollection::PrintPlots(string path)
+	{
+		for (auto& plot : plots)
+			plot->DrawAndPrint(path);
 	}
 
 	void PlotCollection::MovePlotUp(size_t index)

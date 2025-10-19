@@ -18,7 +18,7 @@ void Run()
 {
 	std::ofstream log("log.txt");
 	std::vector<double> machs{ 0.4, 0.6, 0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.2, 1.4 };
-	std::vector<std::string> quantities{ "Cxf1", "Cy1", "Cz1", "mx1", "my1", "mz1", "Cxf2", "Cy2", "Cz2", "mx2", "my2", "mz2" };
+	std::vector<std::string> quantities{ "Cxf1", "Cy1", "Cz1", "mx1", "my1", "mz1", "Xcp1", "Cxf2", "Cy2", "Cz2", "mx2", "my2", "mz2", "Xcp2" };
 
 	Model::PlotCollection allRuns;
 	allRuns.OpenRunsFromFile("./data/balances/S5 T-128 Report Runs.txt", Model::ProtocolTypeEnum::T128);
@@ -30,40 +30,26 @@ void Run()
 
 	for (auto mach : machs)
 	{
-		plotColls.emplace_back();
-
+		plotColls.emplace_back("alpha");
 		for (auto& run : allRuns.GetRuns())
 		{
 			if ((run->runType == Model::RunTypeEnum::AlphaVar) && (run->GetMachNom() == mach))
-			{
 				plotColls.back().AddRun(run);
-			}
 		}
 	}
-	plotColls.back().SetXAxis("alpha");
-	for (auto& quantity : quantities)
+	
+	for (auto& plotColl : plotColls)
 	{
-
+		for (auto& quantity : quantities)
+		{
+			plotColl.CreatePlot(quantity);
+		}
+		plotColl.DisplayRuns();
+		auto machOpt = plotColl.GetLastRun()->GetMachNom();
+		double mach = machOpt.has_value() ? machOpt.value() : 0.0;
+		plotColl.PrintPlots("./graphs/balances/M=" + Model::to_str(mach, 3));
 	}
 
-
-	//plotColls.back().ShowRuns();
-	plotColls.back().PrintPlots("./graphs/balances/M=" + Model::to_str(mach, 3));
-
-
-	// Нормальное использование
-	DrawGraphs gr = DrawGraphs::CreateDrawGraphs("a", "b", "c");
-
-	gr.AddLine();
-
-	//и нарисовать
-	gr.DrawAndPrint();
-
-	//plotColls.back().SetXAxis("alpha");
-	//for (auto& quantity : quantities)
-	//{
-	//	//plotColls.back().ShowQuantity(quantity);
-	//}
 	FlushErrorMessages(log);
 	log.close();
 }

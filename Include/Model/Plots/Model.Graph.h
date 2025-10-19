@@ -18,7 +18,7 @@
 
 #include "Include/Model/Runs/Model.Quantity.h"
 
-using std::vector, std::string, std::function;
+using std::vector, std::function;
 
 namespace ARP::Model
 {
@@ -29,23 +29,28 @@ namespace ARP::Model
 
 	TCanvas* drawMultipleGraphs();
 
+	class DrawGraphs;
+	using DrawGraphsPtr = std::shared_ptr<DrawGraphs>;
+
 	class DrawGraphs
 	{
 	public:
-		std::string yname = "NazvanieY_plaisholder";
 		std::string title = "Nazvanie_plaisholder";
 		std::string xtitle = "plaisholder_x";
 		std::string ytitle = "plaisholder_y";
+		std::string xname = "x";
+		std::string yname = "y";
 
 		TMultiGraph* multiGraph = new TMultiGraph();
 		TCanvas* canvas = new TCanvas("canvas", "", 1200, 800);
 
-		static DrawGraphsPtr CreateDrawGraphs(std::string ititle, std::string ixtitle, std::string iytitle, std::string iyname)
+		static DrawGraphsPtr CreateDrawGraphs(std::string ititle, std::string ixtitle, std::string iytitle, std::string ixname, std::string iyname)
 		{
 			DrawGraphsPtr graph = std::make_shared<DrawGraphs>();
 			graph->title = ititle;
 			graph->xtitle = ixtitle;
 			graph->ytitle = iytitle;
+			graph->xname = ixname;
 			graph->yname = iyname;
 			graph->multiGraph->SetTitle((ititle + ";" + ixtitle + ";" + iytitle).c_str());
 
@@ -54,8 +59,12 @@ namespace ARP::Model
 
 		void AddLine(Model::Quantity x, Model::Quantity y, std::string grname);
 
-		void DrawAndPrint();
-	};
+		void DrawAndPrint(string path);
 
-	using DrawGraphsPtr = std::shared_ptr<DrawGraphs>;
+		~DrawGraphs()
+		{
+			delete multiGraph;
+			delete canvas;
+		}
+	};
 }
