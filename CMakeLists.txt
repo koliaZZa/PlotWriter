@@ -36,16 +36,9 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Configurator Headers
 set(
 HEADERS
-Include/Model/Model.ApplicationContext.h
-Include/Model/Model.Document.h
-Include/Model/Model.ResultComparison.h
-Include/Model/Model.SignalProcessing.h
-Include/Model/Runs/Model.Aerodynamics.h
 Include/Model/Runs/Model.Quantity.h
 Include/Model/Runs/Model.RunResult.h
-Include/Model/Runs/Model.RunSignals.h
 Include/Model/Plots/Model.PlotCollection.h
-Include/Model/Plots/Model.Plot.h
 Include/Model/Plots/Model.Graph.h
 Include/Model/Common/Model.ErrorReporter.h
 Include/Model/Common/Model.Functions.h
@@ -57,16 +50,9 @@ Include/Model/Common/Model.Utilities.h
 # Configurator Source file
 set(
 SOURCES
-Source/Model/Model.ApplicationContext.cpp
-Source/Model/Model.Document.cpp
-Source/Model/Model.ResultComparison.cpp
-Source/Model/Model.SignalProcessing.cpp
-Source/Model/Runs/Model.Aerodynamics.cpp
 Source/Model/Runs/Model.Quantity.cpp
 Source/Model/Runs/Model.RunResult.cpp
-Source/Model/Runs/Model.RunSignals.cpp
 Source/Model/Plots/Model.PlotCollection.cpp
-Source/Model/Plots/Model.Plot.cpp
 Source/Model/Plots/Model.Graph.cpp
 Source/Model/Common/Model.ErrorReporter.cpp
 Source/Model/Common/Model.Functions.cpp
@@ -76,6 +62,7 @@ Source/Model/Common/Model.Utilities.cpp
 main.cpp
 )
 
+source_group(TREE "${CMAKE_SOURCE_DIR}" FILES ${HEADERS} ${SOURCES})
 
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 

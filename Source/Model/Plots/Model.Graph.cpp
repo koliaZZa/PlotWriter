@@ -340,6 +340,7 @@ namespace ARP::Model
 		// Рисуем мультиграф
 		double max = multiGraph->GetYaxis()->GetXmax();
 		multiGraph->GetYaxis()->SetRangeUser(0.0, max);
+		multiGraph->GetXaxis()->SetNdivisions(520);
 
 		multiGraph->Draw("ACP");  // A - оси, L - линии, C - курвы, P - точки, pmc - автоцвет точек, plc - автоцвет линий
 		
@@ -357,7 +358,7 @@ namespace ARP::Model
 		canvas->SaveAs(path.c_str());
 		//canvas->SaveAs("multiple_graphs.pdf");
 
-		//canvas->Close();
+		canvas->Close();
 	}
 	void DrawGraphs::Init()
 	{
