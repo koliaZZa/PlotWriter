@@ -35,14 +35,17 @@ namespace ARP::Model
 	class DrawGraphs
 	{
 	public:
+		DrawGraphs() { Init(); };
+		DrawGraphs(std::string ititle, std::string ixtitle, std::string iytitle, std::string ixname, std::string iyname);
+
 		std::string title = "Nazvanie_plaisholder";
 		std::string xtitle = "plaisholder_x";
 		std::string ytitle = "plaisholder_y";
 		std::string xname = "x";
 		std::string yname = "y";
 
-		TMultiGraph* multiGraph = new TMultiGraph();
-		TCanvas* canvas = new TCanvas("canvas", "", 1200, 800);
+		TMultiGraph* multiGraph = nullptr;
+		TCanvas* canvas = nullptr;
 
 		static DrawGraphsPtr CreateDrawGraphs(std::string ititle, std::string ixtitle, std::string iytitle, std::string ixname, std::string iyname)
 		{
@@ -65,6 +68,12 @@ namespace ARP::Model
 		{
 			delete multiGraph;
 			delete canvas;
+			count--;
 		}
+
+	protected:
+		void Init();
+
+		static inline size_t count{0};
 	};
 }

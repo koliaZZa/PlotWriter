@@ -301,6 +301,12 @@ namespace ARP::Model
 
 		return canvas;
 	}
+	DrawGraphs::DrawGraphs(std::string ititle, std::string ixtitle, std::string iytitle, std::string ixname, std::string iyname):
+		title{ ititle }, xtitle{ ixtitle }, ytitle{ iytitle }, xname{ ixname }, yname{ iyname }
+	{
+		Init();
+		multiGraph->SetTitle((ititle + ";" + ixtitle + ";" + iytitle).c_str());
+	}
 	void DrawGraphs::AddLine(Model::Quantity x, Model::Quantity y, std::string grname)
 	{
 		const size_t nPoints = x.data.size();
@@ -340,5 +346,11 @@ namespace ARP::Model
 		//canvas->SaveAs("multiple_graphs.pdf");
 
 		//canvas->Close();
+	}
+	void DrawGraphs::Init()
+	{
+		count++;
+		multiGraph = new TMultiGraph();
+		canvas = new TCanvas(("canvas"+std::to_string(count)).c_str(), "", 1200, 800);
 	}
 }

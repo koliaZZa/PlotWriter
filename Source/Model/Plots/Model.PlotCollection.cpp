@@ -89,7 +89,7 @@ namespace ARP::Model
 
 		if (iTitle.empty()) iTitle = y.title;
 
-		DrawGraphsPtr plot = DrawGraphs::CreateDrawGraphs(iTitle, x.title, y.title, xAxisName, iyName);
+		DrawGraphsPtr plot = std::make_shared<DrawGraphs>(iTitle, x.title, y.title, xAxisName, iyName);
 		plots.push_back(plot);
 	}
 
