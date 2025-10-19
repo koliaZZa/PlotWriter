@@ -2,6 +2,12 @@
 
 namespace ARP::Model
 {
+	int GetAutoColor(int index) {
+		// Используем красивую палитру ROOT
+		int palette[] = { kRed, kBlue, kGreen, kMagenta, kCyan, kOrange, kViolet, kSpring, kTeal, kPink };
+		return palette[index];
+	}
+
 	void ARP::Model::setupCentralAxes(TMultiGraph* mg, std::string xname, std::string yname)
 	{
 		// Отключаем стандартные оси
@@ -321,6 +327,8 @@ namespace ARP::Model
 		graph->SetMarkerStyle(20);
 		// настройка размера маркера
 		graph->SetMarkerSize(0.5);
+		// настройка цвета
+		graph->SetMarkerColor(GetAutoColor(count++));
 		// установка названия графика
 		graph->SetTitle(grname.c_str());
 

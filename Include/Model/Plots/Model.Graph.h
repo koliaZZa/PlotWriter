@@ -44,6 +44,8 @@ namespace ARP::Model
 		std::string xname = "x";
 		std::string yname = "y";
 
+		int count = 0;
+
 		TMultiGraph* multiGraph = nullptr;
 		TCanvas* canvas = nullptr;
 
@@ -63,6 +65,8 @@ namespace ARP::Model
 		void AddLine(Model::Quantity x, Model::Quantity y, std::string grname);
 
 		void DrawAndPrint(string path);
+
+		int GetAutoColor(int index);
 
 		~DrawGraphs()
 		{
