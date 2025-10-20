@@ -43,7 +43,7 @@ namespace ARP::Model
 		void WriteRuns();
 
 		// Создать модель графика
-		void CreatePlot(std::string iyName, string path, std::string iTitle = "");
+		void CreatePlot(std::string iyName, string path, pair<double, double> yScale = {0.0, 0.0}, std::string iTitle = "");
 		// Установить тип интерполяции
 		void SetInterpolType(InterpolTypeEnum iType) { interpolType = iType; };
 		// Установить ось X

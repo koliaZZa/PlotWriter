@@ -171,6 +171,7 @@ namespace ARP::Model
 		void ApplyGamma();
 
 		void FormTitle(string locale = "rus");
+		void FormLatexTitle(string locale = "rus");
 
 		// Получить величину по названию
 		Quantity GetQuantity(string iName) const;

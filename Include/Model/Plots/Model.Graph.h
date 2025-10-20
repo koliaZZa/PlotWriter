@@ -23,7 +23,7 @@ using std::vector, std::function;
 namespace ARP::Model
 {
 	// Функция для настройки осей в центре
-	void setupCentralAxes(TMultiGraph* mg, std::string xname = "", std::string yname = "");
+	void setupCentralAxes(TMultiGraph* mg, std::pair<double, double> yScale = {0.0, 0.0}, std::string xname = "", std::string yname = "");
 
 	void setupGridAxes(TMultiGraph* mg, std::string xname, std::string yname);
 
@@ -62,7 +62,7 @@ namespace ARP::Model
 
 		void AddLine(Model::Quantity x, Model::Quantity y, std::string grname);
 
-		void DrawAndPrint(string path);
+		void DrawAndPrint(string path, std::pair<double, double> yScale = {0.0, 0.0});
 
 		int GetAutoColor(int index);
 

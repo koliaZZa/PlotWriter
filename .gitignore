@@ -399,3 +399,4 @@ FodyWeavers.xsd
 
 PlotWriter/data/
 Build/
+*.cmp7

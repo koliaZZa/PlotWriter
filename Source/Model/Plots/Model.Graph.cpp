@@ -4,11 +4,11 @@ namespace ARP::Model
 {
 	int DrawGraphs::GetAutoColor(int index) {
 		// Используем красивую палитру ROOT
-		int palette[] = { kRed, kBlue, kGreen, kMagenta, kCyan, kOrange, kViolet, kSpring, kTeal, kPink };
+		int palette[] = { kBlack, kRed, kBlue, kGreen, kOrange, kGray, kViolet, kCyan, kMagenta, kPink };
 		return palette[index];
 	}
 
-	void ARP::Model::setupCentralAxes(TMultiGraph* mg, std::string xname, std::string yname)
+	void ARP::Model::setupCentralAxes(TMultiGraph* mg, std::pair<double, double> yScale, std::string xname, std::string yname)
 	{
 		// Отключаем стандартные оси
 		/*mg->GetXaxis()->SetAxisColor(0);  // Невидимые стандартные оси
@@ -21,8 +21,10 @@ namespace ARP::Model
 		// Создаем новые оси в центре
 		Double_t xmin = mg->GetXaxis()->GetXmin();
 		Double_t xmax = mg->GetXaxis()->GetXmax();
-		Double_t ymin = mg->GetYaxis()->GetXmin() > 0.0 ? 0.0 : mg->GetYaxis()->GetXmin();
-		Double_t ymax = mg->GetYaxis()->GetXmax();
+
+		Double_t ymin = yScale.first == 0.0 ? mg->GetYaxis()->GetXmin() : yScale.first;
+		Double_t ymax = yScale.second == 0.0 ? mg->GetYaxis()->GetXmax() : yScale.second;
+		ymin = ymin > 0.0 ? 0.0 : ymin;
 
 		// Линия оси X (горизонтальная линия при y=0)
 		TLine* xAxis = new TLine(xmin, 0, xmax, 0);
@@ -289,7 +291,7 @@ namespace ARP::Model
 		multiGraph->GetXaxis()->CenterTitle(true);
 		multiGraph->GetYaxis()->CenterTitle(true);*/
 
-		setupCentralAxes(multiGraph, "", "");
+		setupCentralAxes(multiGraph);
 		canvas->SetGrid();
 
 		// Отрисовываем красивые декартовы координаты
@@ -307,7 +309,7 @@ namespace ARP::Model
 
 		return canvas;
 	}
-	DrawGraphs::DrawGraphs(std::string ititle, std::string ixtitle, std::string iytitle, std::string ixname, std::string iyname):
+	DrawGraphs::DrawGraphs(std::string ititle, std::string ixtitle, std::string iytitle, std::string ixname, std::string iyname) :
 		title{ ititle }, xtitle{ ixtitle }, ytitle{ iytitle }, xname{ ixname }, yname{ iyname }
 	{
 		Init();
@@ -323,6 +325,7 @@ namespace ARP::Model
 		TGraph* graph = new TGraph(nPoints, x1.data(), y1.data());
 		// настройка толщины линии
 		graph->SetLineWidth(2);
+		//graph->SetLineStyle();
 		// настройка типа маркера
 		graph->SetMarkerStyle(20);
 		// настройка размера маркера
@@ -335,19 +338,28 @@ namespace ARP::Model
 
 		multiGraph->Add(graph);
 	}
-	void DrawGraphs::DrawAndPrint(string path)
+	void DrawGraphs::DrawAndPrint(string path, std::pair<double, double> yScale)
 	{
 		// Рисуем мультиграф
-		double max = multiGraph->GetYaxis()->GetXmax();
-		multiGraph->GetYaxis()->SetRangeUser(0.0, max);
+		double min = yScale.first == 0.0 ? multiGraph->GetYaxis()->GetXmin() : yScale.first;
+		double max = yScale.second == 0.0 ? multiGraph->GetYaxis()->GetXmax() : yScale.second;
+		min = min > 0.0 ? 0.0 : min;
+		if (abs(max - min) < 0.05)
+		{
+			double k = 0.05 / abs(max - min);
+			min *= k;
+			max *= k;
+		}
+		multiGraph->GetYaxis()->SetRangeUser(min, max);
 		multiGraph->GetXaxis()->SetNdivisions(520);
 
 		multiGraph->Draw("ACP");  // A - оси, L - линии, C - курвы, P - точки, pmc - автоцвет точек, plc - автоцвет линий
-		
-		canvas->BuildLegend();
-		// Отрисовываем красивые декартовы координаты
-		setupCentralAxes(multiGraph);
 
+		if (countLines > 6)
+			canvas->BuildLegend(0.6, 0.2, 0.6, 0.2)->SetNColumns(2);
+		else canvas->BuildLegend();
+		// Отрисовываем красивые декартовы координаты
+		setupCentralAxes(multiGraph, yScale);
 		canvas->SetGrid();
 
 		// Обновляем канву
@@ -364,6 +376,6 @@ namespace ARP::Model
 	{
 		count++;
 		multiGraph = new TMultiGraph();
-		canvas = new TCanvas(("canvas"+std::to_string(count)).c_str(), "", 1200, 800);
+		canvas = new TCanvas(("canvas" + std::to_string(count)).c_str(), "", 1200, 800);
 	}
 }

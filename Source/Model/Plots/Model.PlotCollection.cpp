@@ -81,7 +81,7 @@ namespace ARP::Model
 			runs.erase(it);
 	}
 
-	void PlotCollection::CreatePlot(std::string iyName, string path, std::string iTitle)
+	void PlotCollection::CreatePlot(std::string iyName, string path, pair<double, double> yScale, std::string iTitle)
 	{
 		if (runs.empty()) return;
 		Quantity x{ (*runs.begin())->GetQuantity(xAxisName) };
@@ -96,7 +96,7 @@ namespace ARP::Model
 			Quantity x{ run->GetQuantity(xAxisName) };
 			plot->AddLine(x, run->GetQuantity(yname), run->title);
 		}
-		plot->DrawAndPrint(path);
+		plot->DrawAndPrint(path, yScale);
 	}
 
 	void PlotCollection::SetXAxis(string ixAxis)
@@ -152,7 +152,7 @@ namespace ARP::Model
 		{
 			run->CalcNominalParams();
 			//run->ApplyGamma();
-			run->FormTitle();
+			run->FormLatexTitle();
 		}
 	}
 
@@ -161,5 +161,4 @@ namespace ARP::Model
 		for (auto& run : runs)
 			run->WriteProtocol("Protocol " + run->name + ".txt");
 	}
-
 }

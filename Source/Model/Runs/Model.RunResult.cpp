@@ -282,6 +282,47 @@ namespace ARP::Model
 		}
 	}
 
+	void RunResult::FormLatexTitle(string locale)
+	{
+		if (locale == "rus")
+		{
+			switch (expType)
+			{
+			case ARP::Model::ExperimentType::WindTunnelTest:
+			{
+				title = u8"\\hbox{Пуск }" + name + ", Re - " + ReStatusEnum::str(reStatus) + ", \\phi=" + std::to_string(gamma) + "^{\\circ}";
+				break;
+			}
+			case ARP::Model::ExperimentType::CFD:
+			{
+				title = "CFD, " + string(", \\phi=") + std::to_string(gamma) + "\\circ";
+				break;
+			}
+			default:
+				break;
+			}
+		}
+		else if (locale == "eng")
+		{
+			switch (expType)
+			{
+			case ARP::Model::ExperimentType::WindTunnelTest:
+			{
+				title = "Run " + name + ", Re - " + ReStatusEnum::str(reStatus) + ", #phi=" + std::to_string(gamma) + "#circ";
+				break;
+			}
+			case ARP::Model::ExperimentType::CFD:
+			{
+				title = "CFD, " + string(", #phi=") + std::to_string(gamma) + "#circ";
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+	}
+
 	Table ReadTable(ifstream& iFstream)
 	{
 		Table res;

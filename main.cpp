@@ -17,12 +17,11 @@ inline void FlushErrorMessages(std::ofstream& iFile)
 void Run()
 {
 	std::ofstream log("log.txt");
-	//std::vector<double> machs{ 0.4, 0.6, 0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.2, 1.4 };
-	//std::vector<std::string> quantities{ "Cxf1", "Cy1", "Cz1", "mx1", "my1", "mz1", "Xcp1", "Cxf2", "Cy2", "Cz2", "mx2", "my2", "mz2", "Xcp2" };
+	std::vector<double> machs{ 0.4, 0.6, 0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.2, 1.4 };
+	std::vector<std::string> quantities{ "Cxf1", "Cy1", "Cz1", "mx1", "my1", "mz1", "Xcp1", "Cxf2", "Cy2", "Cz2", "mx2", "my2", "mz2", "Xcp2" };
 
-	std::vector<double> machs{ 0.4, 0.6 };
-	std::vector<std::string> quantities{ "Cxf1", "Cxf2" };
-
+	//std::vector<double> machs{ 0.4, 0.85 };
+	//std::vector<std::string> quantities{ "mx1", "Xcp1" };
 
 	Model::PlotCollection allRuns;
 	allRuns.OpenRunsFromFile("./data/balances/S5 T-128 Report Runs.txt", Model::ProtocolTypeEnum::T128);
@@ -31,6 +30,7 @@ void Run()
 	allRuns.ProcessRuns();
 
 	std::vector<Model::PlotCollection> plotColls;
+	std::pair<double, double> yScale{ 0.0, 0.0 };
 
 	for (auto mach : machs)
 	{
@@ -42,7 +42,10 @@ void Run()
 		}
 		for (auto& quantity : quantities)
 		{
-			plotColls.back().CreatePlot(quantity, "./graphs/balances/M=" + Model::to_str(mach, 3));
+			if (quantity == "Xcp1") yScale = { 0.0, 0.5 };
+			else if (quantity == "Xcp2") yScale = { 0.0, 0.1 };
+			else yScale = { 0.0, 0.0 };
+			plotColls.back().CreatePlot(quantity, "./graphs/balances/M=" + Model::to_str(mach, 3), yScale);
 		}
 	}
 
