@@ -78,14 +78,14 @@ namespace ARP::Model
 		iFile.close();
 		return true;
 	}
-	void RunResult::CalcNominalParams()
+	void RunResult::CalcNominalParams(size_t precision)
 	{
 		switch (runType)
 		{
 		case RunTypeEnum::AlphaVar:
 		{
 			Quantity Mach = GetQuantity("Mach");
-			MachNom = mean(Mach.data, 2);
+			MachNom = mean(Mach.data, precision);
 
 			Quantity alphaNom = GetQuantity("alpha");
 			for (auto& val : alphaNom.data)
@@ -103,7 +103,7 @@ namespace ARP::Model
 
 			Quantity MachNom = GetQuantity("Mach");
 			for (auto& val : MachNom.data)
-				val = roundTo(val, 2);
+				val = roundTo(val, precision);
 			MachNom.SetNames("Mach_nom", "Mach_nom", "M_ном");
 
 			auto iter = std::find_if(quantities.begin(), quantities.end(), [](Quantity& q) {return q.name == "Mach"; });
@@ -199,7 +199,7 @@ namespace ARP::Model
 		}
 	}
 
-	void RunResult::ReadT128Protocol(ifstream& iFile)
+	void RunResult::ReadUnifiedProtocol(ifstream& iFile)
 	{
 		string line;
 		std::getline(iFile, line);
@@ -218,6 +218,7 @@ namespace ARP::Model
 
 	void RunResult::ReadFile(ifstream& iFile, ProtocolType iProtocolType)
 	{
+		protocolType = iProtocolType;
 		if (iFile)
 		{
 			switch (iProtocolType)
@@ -227,9 +228,9 @@ namespace ARP::Model
 				ReadT117Protocol(iFile);
 				break;
 			}
-			case ProtocolTypeEnum::T128:
+			case ProtocolTypeEnum::Unified:
 			{
-				ReadT128Protocol(iFile);
+				ReadUnifiedProtocol(iFile);
 				break;
 			}
 			default:
@@ -282,7 +283,7 @@ namespace ARP::Model
 		}
 	}
 
-	void RunResult::FormLatexTitle(string locale)
+	void RunResult::FormLatexTitle(bool useRe, string locale)
 	{
 		if (locale == "rus")
 		{
@@ -290,7 +291,7 @@ namespace ARP::Model
 			{
 			case ARP::Model::ExperimentType::WindTunnelTest:
 			{
-				title = u8"\\hbox{Пуск }" + name + ", Re - " + ReStatusEnum::str(reStatus) + ", \\phi=" + std::to_string(gamma) + "^{\\circ}";
+				title = u8"\\hbox{Пуск }" + name + (useRe ? ", Re - " + ReStatusEnum::str(reStatus) : "") + ", \\phi=" + std::to_string(gamma) + "^{\\circ}";
 				break;
 			}
 			case ARP::Model::ExperimentType::CFD:
@@ -308,7 +309,7 @@ namespace ARP::Model
 			{
 			case ARP::Model::ExperimentType::WindTunnelTest:
 			{
-				title = "Run " + name + ", Re - " + ReStatusEnum::str(reStatus) + ", #phi=" + std::to_string(gamma) + "#circ";
+				title = "Run " + name + (useRe ? ", Re - " + ReStatusEnum::str(reStatus) : "") + ", #phi=" + std::to_string(gamma) + "#circ";
 				break;
 			}
 			case ARP::Model::ExperimentType::CFD:

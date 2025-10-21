@@ -359,7 +359,7 @@ namespace ARP::Model
 			canvas->BuildLegend(0.6, 0.2, 0.6, 0.2)->SetNColumns(2);
 		else canvas->BuildLegend();
 		// Отрисовываем красивые декартовы координаты
-		setupCentralAxes(multiGraph, yScale);
+		setupCentralAxes(multiGraph, {min, max});
 		canvas->SetGrid();
 
 		// Обновляем канву

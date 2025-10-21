@@ -34,13 +34,15 @@ namespace ARP::Model
 
 	struct ProtocolTypeEnum
 	{
+		static const ProtocolType Unified = 0;
 		static const ProtocolType T109 = 1;
 		static const ProtocolType T117 = 2;
 		static const ProtocolType T128 = 3;
 
 		static ProtocolType enumer(string s)
 		{
-			if (s == "T109") return T109;
+			if (s == "Unified") return Unified;
+			else if (s == "T109") return T109;
 			else if (s == "T117") return T117;
 			else if (s == "T128") return T128;
 			else return T117;
@@ -50,6 +52,9 @@ namespace ARP::Model
 		{
 			switch (enumer)
 			{
+			case Unified:
+				return "Unified";
+				break;
 			case T109:
 				return "T109";
 				break;
@@ -154,8 +159,8 @@ namespace ARP::Model
 	{
 	public:
 		RunResult() = default;
-		RunResult(string iFilePath, ProtocolType iProtocolType = ProtocolTypeEnum::T128);
-		RunResult(ifstream& iFile, ProtocolType iProtocolType = ProtocolTypeEnum::T128);
+		RunResult(string iFilePath, ProtocolType iProtocolType = ProtocolTypeEnum::Unified);
+		RunResult(ifstream& iFile, ProtocolType iProtocolType = ProtocolTypeEnum::Unified);
 		RunResult(const rj::Value& doc) : Object() { Load(doc); };
 
 		// Сохранить в json-документ
@@ -166,12 +171,12 @@ namespace ARP::Model
 		bool WriteProtocol(string iFilePath);
 
 		// Посчитать номинальные параметры
-		void CalcNominalParams();
+		void CalcNominalParams(size_t precision);
 
 		void ApplyGamma();
 
 		void FormTitle(string locale = "rus");
-		void FormLatexTitle(string locale = "rus");
+		void FormLatexTitle(bool useRe = false, string locale = "rus");
 
 		// Получить величину по названию
 		Quantity GetQuantity(string iName) const;
@@ -210,7 +215,7 @@ namespace ARP::Model
 		void ParseTable(ifstream& iFstream);	// Прочитать таблицу величин из файлового потока
 
 		void ReadT117Protocol(ifstream& iFile);
-		void ReadT128Protocol(ifstream& iFile);
+		void ReadUnifiedProtocol(ifstream& iFile);
 
 		void ReadFile(ifstream& iFile, ProtocolType iProtocolType = ProtocolTypeEnum::T128);
 	};

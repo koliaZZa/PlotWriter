@@ -126,7 +126,7 @@ namespace ARP::Model
 		std::swap(plots[index], plots[index + 1]);
 	}
 
-	void PlotCollection::ProcessRuns()
+	void PlotCollection::ProcessRuns(size_t precision)
 	{
 		if (channels.size())
 		{
@@ -150,7 +150,7 @@ namespace ARP::Model
 
 		for (auto& run : runs)
 		{
-			run->CalcNominalParams();
+			run->CalcNominalParams(precision);
 			//run->ApplyGamma();
 			run->FormLatexTitle();
 		}
