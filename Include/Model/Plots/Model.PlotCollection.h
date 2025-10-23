@@ -38,7 +38,7 @@ namespace ARP::Model
 		void MovePlotDown(size_t index);
 
 		// Обработать пуски
-		void ProcessRuns(size_t precision);
+		void ProcessRuns(bool useReInfo, size_t precision);
 
 		void WriteRuns();
 

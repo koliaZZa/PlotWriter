@@ -26,26 +26,45 @@ void ProcessBalancesT128(std::ofstream& iLog)
 	allRuns.OpenRunsFromFile("./data/balances/S5 T-128 Report Runs.txt", Model::ProtocolTypeEnum::Unified);
 	allRuns.ReadChannels("./data/balances/channels T128.txt");
 	allRuns.ReadRunsList("./data/balances/runs list T128.txt");
-	allRuns.ProcessRuns(2);
+	allRuns.ProcessRuns(true, 2);
 
 	std::vector<Model::PlotCollection> plotColls;
 	std::pair<double, double> yScale{ 0.0, 0.0 };
-
-	for (auto mach : machs)
+	
+	// Alpha var
+	if (bool alphaVar = false)
 	{
-		plotColls.emplace_back("alpha");
-		for (auto& run : allRuns.GetRuns())
+		for (auto mach : machs)
 		{
-			if ((run->runType == Model::RunTypeEnum::AlphaVar) && (run->GetMachNom() == mach))
-				plotColls.back().AddRun(run);
+			plotColls.emplace_back("alpha");
+			for (auto& run : allRuns.GetRuns())
+			{
+				if ((run->runType == Model::RunTypeEnum::AlphaVar) && (run->GetMachNom() == mach))
+					plotColls.back().AddRun(run);
+			}
+			for (auto& quantity : quantities)
+			{
+				if (quantity == "Xcp1") yScale = { 0.0, 0.5 };
+				else if (quantity == "Xcp2") yScale = { 0.0, 0.15 };
+				else yScale = { 0.0, 0.0 };
+				plotColls.back().CreatePlot(quantity, "./graphs/balances/M=" + Model::to_str(mach, 3), yScale);
+			}
 		}
-		for (auto& quantity : quantities)
-		{
-			if (quantity == "Xcp1") yScale = { 0.0, 0.5 };
-			else if (quantity == "Xcp2") yScale = { 0.0, 0.1 };
-			else yScale = { 0.0, 0.0 };
-			plotColls.back().CreatePlot(quantity, "./graphs/balances/M=" + Model::to_str(mach, 3), yScale);
-		}
+	}
+
+	//Mach var
+	Model::PlotCollection machVarPlots("Mach");
+	for (auto& run : allRuns.GetRuns())
+	{
+		if (run->runType == Model::RunTypeEnum::MachVar)
+			machVarPlots.AddRun(run);
+	}
+	for (auto& quantity : quantities)
+	{
+		if (quantity == "Xcp1") yScale = { 0.0, 0.5 };
+		else if (quantity == "Xcp2") yScale = { 0.0, 0.1 };
+		else yScale = { 0.0, 0.0 };
+		machVarPlots.CreatePlot(quantity, "./graphs/balances/Mach var", yScale);
 	}
 
 	FlushErrorMessages(iLog);
@@ -63,7 +82,7 @@ void ProcessBalancesT109(std::ofstream& iLog)
 	allRuns.OpenRunsFromFile("./data/balances/S5 T-109 Report Runs.txt", Model::ProtocolTypeEnum::Unified);
 	allRuns.ReadChannels("./data/balances/channels T109.txt");
 	allRuns.ReadRunsList("./data/balances/runs list T109.txt");
-	allRuns.ProcessRuns(1);
+	allRuns.ProcessRuns(false, 1);
 
 	std::vector<Model::PlotCollection> plotColls;
 	std::pair<double, double> yScale{ 0.0, 0.0 };
@@ -95,8 +114,8 @@ int main() {
 	//Model::drawMultipleGraphs();
 	std::ofstream log("log.txt");
 
-	//ProcessBalancesT128(log);
-	ProcessBalancesT109(log);
+	ProcessBalancesT128(log);
+	//ProcessBalancesT109(log);
 	log.close();
 	app.Run();
 

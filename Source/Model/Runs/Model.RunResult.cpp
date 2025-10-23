@@ -2,7 +2,7 @@
 
 namespace ARP::Model
 {
-	RunResult::RunResult(string iFilePath, ProtocolType iProtocolType): protocolType{ iProtocolType }
+	RunResult::RunResult(string iFilePath, ProtocolType iProtocolType) : protocolType{ iProtocolType }
 	{
 		ifstream iFile(iFilePath);
 		ReadFile(iFile, iProtocolType);
@@ -55,14 +55,14 @@ namespace ARP::Model
 			ErrorReporter::PushMessage(ErrorType::FileSaving, "Run " + name, "Protocol file " + iFilePath + " didn't open");
 			return false;
 		}
-		if (quantities.empty() || !pointsNum) 
+		if (quantities.empty() || !pointsNum)
 		{
 			ErrorReporter::PushMessage(ErrorType::FileSaving, "Run " + name, "No data in run");
 			return false;
 		}
 		unsigned char bom[] = { 0xEF,0xBB,0xBF };
 		iFile.write((char*)bom, sizeof(bom));
-		iFile << "Run " + name + "; protocol type - " + ProtocolTypeEnum::str(protocolType) + "; run type - " + RunTypeEnum::str(runType) + "; M_nom = " << std::setprecision(2) <<MachNom.value() << "; comment - " + comment << std::endl;
+		iFile << "Run " + name + "; protocol type - " + ProtocolTypeEnum::str(protocolType) + "; run type - " + RunTypeEnum::str(runType) + "; M_nom = " << std::setprecision(2) << MachNom.value() << "; comment - " + comment << std::endl;
 
 		for (auto& quantity : quantities)
 			iFile << std::setw(12) << std::left << quantity.title;
@@ -291,7 +291,20 @@ namespace ARP::Model
 			{
 			case ARP::Model::ExperimentType::WindTunnelTest:
 			{
-				title = u8"\\hbox{Пуск }" + name + (useRe ? ", Re - " + ReStatusEnum::str(reStatus) : "") + ", \\phi=" + std::to_string(gamma) + "^{\\circ}";
+				switch (runType)
+				{
+				case RunTypeEnum::AlphaVar:
+				{
+					title = u8"\\hbox{Пуск }" + name + (useRe ? ", Re - " + ReStatusEnum::str(reStatus) : "") + ", \\phi=" + std::to_string(gamma) + "^{\\circ}";
+					break;
+				}
+				case RunTypeEnum::MachVar:
+				{
+					title = u8"\\hbox{Пуск }" + name + (useRe ? ", Re - " + ReStatusEnum::str(reStatus) : "") + ", \\alpha=" + to_str(AlphaNom.value(), 0) + "^{\\circ}" + ", \\phi=" + std::to_string(gamma) + "^{\\circ}";
+					break;
+				}
+				default: break;
+				}
 				break;
 			}
 			case ARP::Model::ExperimentType::CFD:

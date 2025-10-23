@@ -344,6 +344,7 @@ namespace ARP::Model
 		double min = yScale.first == 0.0 ? multiGraph->GetYaxis()->GetXmin() : yScale.first;
 		double max = yScale.second == 0.0 ? multiGraph->GetYaxis()->GetXmax() : yScale.second;
 		min = min > 0.0 ? 0.0 : min;
+		max = max < 0.0 ? 0.0 : max;
 		if (abs(max - min) < 0.05)
 		{
 			double k = 0.05 / abs(max - min);
