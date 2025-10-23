@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include "Include/Model/Plots/Model.PlotCollection.h"
+#include "Include/Model/NewRun.h"
 
 using namespace ARP;
 
@@ -107,17 +108,195 @@ void ProcessBalancesT109(std::ofstream& iLog)
 	FlushErrorMessages(iLog);
 }
 
+
+
+void RunTwo()
+{
+	NewRun run = NewRun("Cp.txt");
+	std::vector< std::shared_ptr<ARP::Model::DrawGraphs>> graphcollections;
+
+	std::string RunName = "";
+
+	auto pfi_vec = run.GetAllPfi();
+	for (auto pfi : pfi_vec)
+	{
+		for (size_t i = 0; i < run.colNames.size(); i++)
+		{
+			if (RunName == run.colNames[i])
+			{
+				auto data = run.GetGraphDataForPhiConst(pfi, i);
+				graphcollections.back().get()->AddLine(data.first, data.second, std::to_string(run.quantities[7].data[i]));
+			}
+			else
+			{
+				if (!graphcollections.empty())
+					graphcollections.back().get()->DrawAndPrint("", { 0.0, 0.0 });
+
+				RunName = run.colNames[i];
+
+				graphcollections.push_back(std::make_shared<ARP::Model::DrawGraphs>(RunName, "x", "Cp", "", ""));
+				auto data = run.GetGraphDataForPhiConst(pfi, i);
+				graphcollections.back().get()->AddLine(data.first, data.second, std::to_string(run.quantities[7].data[i]));
+
+			}
+			graphcollections.back().get()->DrawAndPrint("", { 0.0, 0.0 });
+		}
+	}
+	graphcollections.clear();
+
+	//
+	RunName = run.colNames[0];	
+
+	vector<size_t> start_points{ 0 };
+	for (int i = 1; i < run.colNames.size(); i++)
+		if (RunName != run.colNames[i])
+		{
+			start_points.push_back(i);
+			RunName = run.colNames[i];
+		}
+	start_points.push_back(run.colNames.size() - 1);
+
+
+	auto x_vec = run.GetAllX();
+	for (size_t p = 0; p < start_points.size() - 1; p++)
+	{
+		size_t start = start_points[p];
+		size_t end = start_points[p + 1];
+
+		for (auto x : x_vec)
+		{
+			graphcollections.push_back(std::make_shared<ARP::Model::DrawGraphs>(RunName, "#alpha", "Cp", "", ""));
+			for (size_t row = 0; row < run.cord_table.size(); row++)
+			{
+				size_t calbr_row = row + 8;
+
+				if (x == ARP::Model::roundTo(run.cord_table[row].data[0], 5))
+				{
+					auto data = run.GetGraphDataForXConst(calbr_row, start, end);
+					graphcollections.back().get()->AddLine(std::get<0>(data), std::get<1>(data), std::get<2>(data));
+				}
+
+			}
+			graphcollections.back().get()->DrawAndPrint("", { 0.0, 0.0 });
+		}
+	}
+
+	graphcollections.clear();
+
+	//
+
+	for (auto x : x_vec)
+	{
+		for (size_t i = 0; i < run.colNames.size(); i++)
+		{
+			if (RunName == run.colNames[i])
+			{
+				auto data = run.GetGraphDataForXConstPolar(x, i);
+				graphcollections.back().get()->AddLine(std::get<0>(data), std::get<1>(data), std::get<2>(data));
+
+			}
+			else
+			{
+				if (!graphcollections.empty())
+					graphcollections.back().get()->DrawAndPrint("", { 0.0, 0.0 });
+
+				RunName = run.colNames[i];
+
+				graphcollections.push_back(std::make_shared<ARP::Model::DrawGraphs>(RunName, "fi", "Cp", "", ""));
+				auto data = run.GetGraphDataForXConstPolar(x, i);
+				graphcollections.back().get()->AddLine(std::get<0>(data), std::get<1>(data), std::get<2>(data));
+			}
+		}
+
+		graphcollections.back().get()->DrawAndPrint("", { 0.0, 0.0 });
+	}
+
+
+}
+
+
+
+void RunTwo()
+{
+	NewRun run = NewRun("Cp.txt");
+	std::vector< std::shared_ptr<ARP::Model::DrawGraphs>> graphcollections;
+
+	std::string RunName = "";
+
+	/*for (int i = 0; i < run.colNames.size(); i++)
+	{
+		auto pfi_vec = run.GetAllPfi();
+		size_t pfi_vec_size = pfi_vec.size();
+
+		if (RunName == run.colNames[i])
+		{
+			size_t start_gr = graphcollections.size() - pfi_vec_size;
+			
+			for (auto pfi : pfi_vec)
+			{
+				auto data = run.GetGraphDataForPhiConst(pfi, i);
+				graphcollections[start_gr].get()->AddLine(data.first, data.second, std::to_string(run.quantities[7].data[i]));
+				start_gr++;
+			}
+		}
+		else
+		{
+			RunName = run.colNames[i];
+
+			for (auto pfi : pfi_vec)
+			{
+				graphcollections.push_back(std::make_shared<ARP::Model::DrawGraphs>(RunName, "x", "Cp", "", ""));
+				auto data = run.GetGraphDataForPhiConst(pfi, i);
+				graphcollections.back().get()->AddLine(data.first, data.second, std::to_string(run.quantities[7].data[i]));
+			}
+		}
+	}*/
+
+	auto pfi_vec = run.GetAllPfi();
+	for (auto pfi : pfi_vec)
+	{
+		for (int i = 0; i < run.colNames.size(); i++)
+		{
+			if (RunName == run.colNames[i])
+			{
+				auto data = run.GetGraphDataForPhiConst(pfi, i);
+				graphcollections.back().get()->AddLine(data.first, data.second, std::to_string(run.quantities[7].data[i]));
+			}
+			else
+			{
+				if (!graphcollections.empty())
+					graphcollections.back().get()->DrawAndPrint("", {0.0, 0.0});
+
+				RunName = run.colNames[i];
+
+				graphcollections.push_back(std::make_shared<ARP::Model::DrawGraphs>(RunName, "x", "Cp", "", ""));
+				auto data = run.GetGraphDataForPhiConst(pfi, i);
+				graphcollections.back().get()->AddLine(data.first, data.second, std::to_string(run.quantities[7].data[i]));
+
+			}
+		}
+	}
+
+}
+
 int main() {
 	TApplication app("app", nullptr, nullptr);
 
-	// Для проверки
-	//Model::drawMultipleGraphs();
-	std::ofstream log("log.txt");
+	//// Для проверки
+	////Model::drawMultipleGraphs();
+	//Run();
+	RunTwo();
 
-	ProcessBalancesT128(log);
-	//ProcessBalancesT109(log);
-	log.close();
+	//ProcessBalancesT128(log);
+	/*ProcessBalancesT109(log);
+	log.close();*/
 	app.Run();
+
+<<<<<<< Updated upstream
+
+=======
+	
+>>>>>>> Stashed changes
 
 	return 0;
 }

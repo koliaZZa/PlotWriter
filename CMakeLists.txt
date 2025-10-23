@@ -45,6 +45,7 @@ Include/Model/Common/Model.Functions.h
 Include/Model/Common/Model.Object.h
 Include/Model/Common/Model.RJUtilities.h
 Include/Model/Common/Model.Utilities.h
+Include/Model/NewRun.h
 )
 
 # Configurator Source file
@@ -59,6 +60,7 @@ Source/Model/Common/Model.Functions.cpp
 Source/Model/Common/Model.Object.cpp
 Source/Model/Common/Model.RJUtilities.cpp
 Source/Model/Common/Model.Utilities.cpp
+Source/Model/NewRun.cpp
 main.cpp
 )
 

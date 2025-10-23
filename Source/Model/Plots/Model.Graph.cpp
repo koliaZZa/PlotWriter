@@ -369,9 +369,8 @@ namespace ARP::Model
 		// Сохраняем в файл
 		path += "/" + yname + ".png";
 		canvas->SaveAs(path.c_str());
-		//canvas->SaveAs("multiple_graphs.pdf");
 
-		canvas->Close();
+		//canvas->Close();
 	}
 	void DrawGraphs::Init()
 	{
