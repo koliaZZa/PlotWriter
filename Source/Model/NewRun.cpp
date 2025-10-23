@@ -67,7 +67,6 @@ std::vector<double> NewRun::GetAllPfi()
 	return data;
 }
 
-<<<<<<< Updated upstream
 std::vector<double> NewRun::GetAllX()
 {
 	vector<double> data;
@@ -89,8 +88,6 @@ std::vector<double> NewRun::GetAllX()
 	return data;
 }
 
-=======
->>>>>>> Stashed changes
 std::pair<ARP::Model::Quantity, ARP::Model::Quantity> NewRun::GetGraphDataForPhiConst(double Pfi, size_t i)
 {
 	vector<double> x_data;
@@ -113,7 +110,6 @@ std::pair<ARP::Model::Quantity, ARP::Model::Quantity> NewRun::GetGraphDataForPhi
 	return std::pair<ARP::Model::Quantity, ARP::Model::Quantity> {x, y};
 }
 
-<<<<<<< Updated upstream
 std::tuple<ARP::Model::Quantity, ARP::Model::Quantity, std::string> NewRun::GetGraphDataForXConst(size_t x_point, size_t start, size_t end)
 {
 	vector<double> x_data;
@@ -156,6 +152,3 @@ std::tuple<ARP::Model::Quantity, ARP::Model::Quantity, std::string> NewRun::GetG
 	
 	return std::tuple<ARP::Model::Quantity, ARP::Model::Quantity, std::string>();
 }
-
-=======
->>>>>>> Stashed changes

@@ -214,71 +214,6 @@ void RunTwo()
 
 }
 
-
-
-void RunTwo()
-{
-	NewRun run = NewRun("Cp.txt");
-	std::vector< std::shared_ptr<ARP::Model::DrawGraphs>> graphcollections;
-
-	std::string RunName = "";
-
-	/*for (int i = 0; i < run.colNames.size(); i++)
-	{
-		auto pfi_vec = run.GetAllPfi();
-		size_t pfi_vec_size = pfi_vec.size();
-
-		if (RunName == run.colNames[i])
-		{
-			size_t start_gr = graphcollections.size() - pfi_vec_size;
-			
-			for (auto pfi : pfi_vec)
-			{
-				auto data = run.GetGraphDataForPhiConst(pfi, i);
-				graphcollections[start_gr].get()->AddLine(data.first, data.second, std::to_string(run.quantities[7].data[i]));
-				start_gr++;
-			}
-		}
-		else
-		{
-			RunName = run.colNames[i];
-
-			for (auto pfi : pfi_vec)
-			{
-				graphcollections.push_back(std::make_shared<ARP::Model::DrawGraphs>(RunName, "x", "Cp", "", ""));
-				auto data = run.GetGraphDataForPhiConst(pfi, i);
-				graphcollections.back().get()->AddLine(data.first, data.second, std::to_string(run.quantities[7].data[i]));
-			}
-		}
-	}*/
-
-	auto pfi_vec = run.GetAllPfi();
-	for (auto pfi : pfi_vec)
-	{
-		for (int i = 0; i < run.colNames.size(); i++)
-		{
-			if (RunName == run.colNames[i])
-			{
-				auto data = run.GetGraphDataForPhiConst(pfi, i);
-				graphcollections.back().get()->AddLine(data.first, data.second, std::to_string(run.quantities[7].data[i]));
-			}
-			else
-			{
-				if (!graphcollections.empty())
-					graphcollections.back().get()->DrawAndPrint("", {0.0, 0.0});
-
-				RunName = run.colNames[i];
-
-				graphcollections.push_back(std::make_shared<ARP::Model::DrawGraphs>(RunName, "x", "Cp", "", ""));
-				auto data = run.GetGraphDataForPhiConst(pfi, i);
-				graphcollections.back().get()->AddLine(data.first, data.second, std::to_string(run.quantities[7].data[i]));
-
-			}
-		}
-	}
-
-}
-
 int main() {
 	TApplication app("app", nullptr, nullptr);
 
@@ -291,12 +226,6 @@ int main() {
 	/*ProcessBalancesT109(log);
 	log.close();*/
 	app.Run();
-
-<<<<<<< Updated upstream
-
-=======
-	
->>>>>>> Stashed changes
 
 	return 0;
 }
