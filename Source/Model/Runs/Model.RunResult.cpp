@@ -205,7 +205,7 @@ namespace ARP::Model
 		std::getline(iFile, line);
 		vector<string> vTmp = Tokenize(line);
 		size_t i = 0;
-		while (vTmp[i] != u8"Пуск")
+		while ((vTmp[i] != u8"Пуск") && (vTmp[i] != u8"Расчёт"))
 		{
 			i++;
 			if (i >= vTmp.size())
@@ -213,6 +213,11 @@ namespace ARP::Model
 		}
 		// Сохраняем номер протокола как название пуска
 		name = vTmp[i + 1].substr(0, vTmp[i + 1].size() - 1);
+
+		// Выставляем тип источника данных
+		if (vTmp[0] == u8"Пуск") expType = ExperimentType::WindTunnelTest;
+		else if (vTmp[0] == u8"Расчёт") expType = ExperimentType::CFD;
+
 		ParseTable(iFile);		// Считывание таблицы с данными
 	}
 
@@ -309,7 +314,7 @@ namespace ARP::Model
 			}
 			case ARP::Model::ExperimentType::CFD:
 			{
-				title = "CFD, " + string(", \\phi=") + std::to_string(gamma) + "\\circ";
+				title = "CFD, " + string("\\phi=") + std::to_string(gamma) + "^{\\circ}";
 				break;
 			}
 			default:

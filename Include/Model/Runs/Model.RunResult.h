@@ -187,6 +187,8 @@ namespace ARP::Model
 		// Получить название пуска
 		string GetName() const { return name; };
 
+		ExperimentType GetExperimentType() const { return expType; };
+
 		std::optional<double> GetMachNom() const { return MachNom; };
 		std::optional<double> GetAlphaNom() const { return AlphaNom; };
 

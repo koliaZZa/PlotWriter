@@ -29,6 +29,13 @@ namespace ARP::Model
 
 	TCanvas* drawMultipleGraphs();
 
+	enum class GraphType
+	{
+		Balances,
+		CpPhi,
+		CpX
+	};
+
 	class DrawGraphs;
 	using DrawGraphsPtr = std::shared_ptr<DrawGraphs>;
 
@@ -36,7 +43,7 @@ namespace ARP::Model
 	{
 	public:
 		DrawGraphs() { Init(); };
-		DrawGraphs(std::string ititle, std::string ixtitle, std::string iytitle, std::string ixname, std::string iyname);
+		DrawGraphs(std::string ititle, std::string ixtitle, std::string iytitle, std::string ixname, std::string iyname, GraphType iGraphType = GraphType::Balances);
 
 		std::string title = "Nazvanie_plaisholder";
 		std::string xtitle = "plaisholder_x";
@@ -60,7 +67,7 @@ namespace ARP::Model
 			return graph;
 		}
 
-		void AddLine(Model::Quantity x, Model::Quantity y, std::string grname);
+		void AddLine(Model::Quantity x, Model::Quantity y, std::string grname, bool dotted = false);
 
 		void DrawAndPrint(string path, std::pair<double, double> yScale = {0.0, 0.0});
 
@@ -79,5 +86,7 @@ namespace ARP::Model
 		static inline size_t count{0};
 
 		size_t countLines{ 0 };
+
+		GraphType graphType{GraphType::Balances};
 	};
 }

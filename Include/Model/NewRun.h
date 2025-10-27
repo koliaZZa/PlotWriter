@@ -19,7 +19,7 @@ class NewRun
 {
 public:
 	NewRun() = default;
-	NewRun(std::string iFilePath, std::string iFilePath_Cords = "Points_coords.txt");
+	NewRun(std::string iFilePath, std::string iFilePath_Cords);
 
 	std::vector<double> GetAllPfi();
 
@@ -29,7 +29,7 @@ public:
 	std::tuple<ARP::Model::Quantity, ARP::Model::Quantity, std::string> GetGraphDataForXConst(size_t x_point, size_t start, size_t end);
 	std::tuple<ARP::Model::Quantity, ARP::Model::Quantity, std::string> GetGraphDataForXConstPolar(double x, size_t col);
 
-	std::pair<ARP::Model::Quantity, ARP::Model::Quantity> GetGraphDataForPhiConst(double Pfi, size_t i);
+	//std::pair<ARP::Model::Quantity, ARP::Model::Quantity> GetGraphDataForPhiConst(double Pfi, size_t i);
 
 	std::vector<ARP::Model::Quantity> quantities;
 	std::vector<std::string> quantitiesNames;

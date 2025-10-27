@@ -95,7 +95,7 @@ std::pair<ARP::Model::Quantity, ARP::Model::Quantity> NewRun::GetGraphDataForPhi
 	
 	for (size_t col = 0; col < cord_table.size(); col++)
 	{
-		size_t j = i + 8;
+		size_t j = col + 8;
 		auto Pfi_cheak = ARP::Model::roundTo(cord_table[col].data[1], 2);
 		if (Pfi == ARP::Model::roundTo(cord_table[col].data[1], 2))
 		{
@@ -148,7 +148,4 @@ std::tuple<ARP::Model::Quantity, ARP::Model::Quantity, std::string> NewRun::GetG
 	ARP::Model::Quantity qy{ "", std::move(y_data) };
 
 	return  std::tuple<ARP::Model::Quantity, ARP::Model::Quantity, std::string> {qx, qy, name};
-	
-	
-	return std::tuple<ARP::Model::Quantity, ARP::Model::Quantity, std::string>();
 }

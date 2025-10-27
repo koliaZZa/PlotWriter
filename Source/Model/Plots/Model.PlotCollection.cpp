@@ -94,7 +94,7 @@ namespace ARP::Model
 		for (auto& run : runs)
 		{
 			Quantity x{ run->GetQuantity(xAxisName) };
-			plot->AddLine(x, run->GetQuantity(yname), run->title);
+			plot->AddLine(x, run->GetQuantity(yname), run->title, run->GetExperimentType() == ExperimentType::CFD);
 		}
 		plot->DrawAndPrint(path, yScale);
 	}

@@ -4,7 +4,7 @@ namespace ARP::Model
 {
 	int DrawGraphs::GetAutoColor(int index) {
 		// Используем красивую палитру ROOT
-		int palette[] = { kBlack, kRed, kBlue, kGreen, kOrange, kGray, kViolet, kCyan, kMagenta, kPink };
+		int palette[] = { kBlack, kRed, kBlue, kGreen, kOrange, kGray, kViolet, kCyan, 8, 9, 30, 42, 46, 38, 29 };
 		return palette[index];
 	}
 
@@ -309,13 +309,13 @@ namespace ARP::Model
 
 		return canvas;
 	}
-	DrawGraphs::DrawGraphs(std::string ititle, std::string ixtitle, std::string iytitle, std::string ixname, std::string iyname) :
-		title{ ititle }, xtitle{ ixtitle }, ytitle{ iytitle }, xname{ ixname }, yname{ iyname }
+	DrawGraphs::DrawGraphs(std::string ititle, std::string ixtitle, std::string iytitle, std::string ixname, std::string iyname, GraphType iGraphType) :
+		title{ ititle }, xtitle{ ixtitle }, ytitle{ iytitle }, xname{ ixname }, yname{ iyname }, graphType{iGraphType}
 	{
 		Init();
 		multiGraph->SetTitle((ititle + ";" + ixtitle + ";" + iytitle).c_str());
 	}
-	void DrawGraphs::AddLine(Model::Quantity x, Model::Quantity y, std::string grname)
+	void DrawGraphs::AddLine(Model::Quantity x, Model::Quantity y, std::string grname, bool dotted)
 	{
 		const size_t nPoints = x.data.size();
 		// установка
@@ -325,7 +325,8 @@ namespace ARP::Model
 		TGraph* graph = new TGraph(nPoints, x1.data(), y1.data());
 		// настройка толщины линии
 		graph->SetLineWidth(2);
-		//graph->SetLineStyle();
+		if (dotted)
+			graph->SetLineStyle(9);
 		// настройка типа маркера
 		graph->SetMarkerStyle(20);
 		// настройка размера маркера
@@ -354,7 +355,20 @@ namespace ARP::Model
 		multiGraph->GetYaxis()->SetRangeUser(min, max);
 		multiGraph->GetXaxis()->SetNdivisions(520);
 
-		multiGraph->Draw("ACP");  // A - оси, L - линии, C - курвы, P - точки, pmc - автоцвет точек, plc - автоцвет линий
+		switch (graphType)
+		{
+		case ARP::Model::GraphType::Balances:
+			multiGraph->Draw("ACP");  // A - оси, L - линии, C - курвы, P - точки, pmc - автоцвет точек, plc - автоцвет линий
+			break;
+		case ARP::Model::GraphType::CpPhi:
+			multiGraph->Draw("AP");
+			break;
+		case ARP::Model::GraphType::CpX:
+			multiGraph->Draw("ACP");
+			break;
+		default:
+			break;
+		}
 
 		if (countLines > 6)
 			canvas->BuildLegend(0.6, 0.2, 0.6, 0.2)->SetNColumns(2);
