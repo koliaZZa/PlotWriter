@@ -87,7 +87,21 @@ namespace ARP::Model
 		Quantity x{ (*runs.begin())->GetQuantity(xAxisName) };
 		Quantity y{ (*runs.begin())->GetQuantity(iyName) };
 
-		if (iTitle.empty()) iTitle = y.title;
+		if (iTitle.empty())
+		{
+			switch ((*runs.begin())->runType)
+			{
+			case Model::RunTypeEnum::AlphaVar:
+				iTitle = y.title + "(#alpha)" + ", M=" + to_str((*runs.begin())->GetMachNom().value(), 3);
+				break;
+			case Model::RunTypeEnum::MachVar:
+				iTitle = y.title + "(M)";
+				break;
+			default:
+				iTitle = y.title;
+				break;
+			}
+		}
 
 		DrawGraphsPtr plot = std::make_shared<DrawGraphs>(iTitle, x.title, y.title, xAxisName, iyName);
 		string yname = plot->yname;
