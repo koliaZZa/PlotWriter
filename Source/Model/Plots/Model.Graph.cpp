@@ -348,9 +348,6 @@ namespace ARP::Model
 		std::vector<double> x1(x.data.begin(), x.data.end());
 		std::vector<double> y1(y.data.begin(), y.data.end());
 
-		std::vector<double> x1(x.data.begin(), x.data.end());
-		std::vector<double> y1(y.data.begin(), y.data.end());
-
 		TGraphPolar* graph = new TGraphPolar(nPoints, x1.data(), y1.data());
 		// настройка толщины линии
 		graph->SetLineWidth(2);

@@ -168,7 +168,8 @@ void ProcessPressure(string iDataPath, string iPointsDataPath, string iGraphsPat
 
 	std::string RunName = "";
 
-	auto phi_vec = run.GetAllPfi();
+	//auto phi_vec = run.GetAllPfi();
+	vector<double> phi_vec{ 0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330 };
 	for (auto phi : phi_vec)
 	{
 		for (size_t i = 0; i < run.colNames.size(); i++)
@@ -176,7 +177,7 @@ void ProcessPressure(string iDataPath, string iPointsDataPath, string iGraphsPat
 			if (RunName == run.colNames[i])
 			{
 				auto data = run.GetGraphDataForPhiConst(phi, i);
-				graphcollections.back()->AddLine(data.first, data.second, std::to_string(run.quantities[7].data[i]));
+				graphcollections.back()->AddLine(data.first, data.second, "#alpha=" + Model::to_str(run.quantities[7].data[i], 2) + "#circ");
 			}
 			else
 			{
@@ -185,9 +186,11 @@ void ProcessPressure(string iDataPath, string iPointsDataPath, string iGraphsPat
 
 				RunName = run.colNames[i];
 
-				graphcollections.push_back(std::make_shared<ARP::Model::DrawGraphs>(RunName+" #phi="+ std::to_string(int(phi)), "x", "C_{p}", "x", "phi="+ std::to_string(int(phi)), Model::GraphType::CpPhi));
+				vector<string> runStr = Model::Tokenize(RunName, "_r");
+				string graphTitle = runStr[0] + u8", \\hbox{пуск} " + runStr[1] + ", \\phi=" + std::to_string(int(phi)) + "^{\\circ}";
+				graphcollections.push_back(std::make_shared<ARP::Model::DrawGraphs>(graphTitle, "x", "C_{p}", "x", "phi=" + std::to_string(int(phi)), Model::GraphType::CpPhi));
 				auto data = run.GetGraphDataForPhiConst(phi, i);
-				graphcollections.back()->AddLine(data.first, data.second, "#alpha=" + Model::to_str(run.quantities[7].data[i], 2) + "^{circ}");
+				graphcollections.back()->AddLine(data.first, data.second, "#alpha=" + Model::to_str(run.quantities[7].data[i], 2) + "#circ");
 
 			}
 			graphcollections.back()->DrawAndPrint(iGraphsPath + RunName + "/phi const/", { 0.0, 0.0 });
@@ -301,10 +304,10 @@ int main() {
 	std::ofstream log("./log.txt");
 	//InitPressureFolders("./graphs/pressure/D4.11", "./data/pressure/Cp runs list D4.11.txt");
 	//InitPressureFolders("./graphs/pressure/D5.2", "./data/pressure/Cp runs list D5.2.txt");
-	//ProcessPressure("./data/pressure/Cp_d4.11.txt", "./data/pressure/Points_coords_D4.11.txt", "./graphs/pressure/D4.11/");
+	ProcessPressure("./data/pressure/Cp_d4.11.txt", "./data/pressure/Points_coords_D4.11.txt", "./graphs/pressure/D4.11/");
 
-	ProcessBalancesT128(log, true, true);
-	ProcessBalancesT109(log);
+	//ProcessBalancesT128(log, true, true);
+	//ProcessBalancesT109(log);
 	log.close();
 	app.Run();
 

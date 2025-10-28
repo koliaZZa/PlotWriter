@@ -74,7 +74,7 @@ namespace ARP::Model
 
 		void DrawAndPrint(string path, std::pair<double, double> yScale = {0.0, 0.0});
 
-		void DrawAndPrintPolar(string path)
+		void DrawAndPrintPolar(string path);
 
 		int GetAutoColor(int index);
 
