@@ -15,6 +15,7 @@
 #include "TLine.h"
 #include "TLatex.h"
 #include "TArrow.h"
+#include "TGraphPolar.h"
 
 #include "Include/Model/Runs/Model.Quantity.h"
 
@@ -69,14 +70,20 @@ namespace ARP::Model
 
 		void AddLine(Model::Quantity x, Model::Quantity y, std::string grname, bool dotted = false);
 
+		void AddLinePolar(Model::Quantity x, Model::Quantity y, std::string grname, bool first = false, bool dotted = false);
+
 		void DrawAndPrint(string path, std::pair<double, double> yScale = {0.0, 0.0});
+
+		void DrawAndPrintPolar(string path)
 
 		int GetAutoColor(int index);
 
 		~DrawGraphs()
 		{
-			delete multiGraph;
-			delete canvas;
+			if (multiGraph)
+				delete multiGraph;
+			if (canvas)
+				delete canvas;
 			count--;
 		}
 

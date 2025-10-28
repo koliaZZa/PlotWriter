@@ -339,6 +339,38 @@ namespace ARP::Model
 
 		multiGraph->Add(graph);
 	}
+	void DrawGraphs::AddLinePolar(Model::Quantity x, Model::Quantity y, std::string grname, bool first , bool dotted)
+	{
+		if (multiGraph)
+			delete multiGraph;
+		const size_t nPoints = x.data.size();
+		// установка
+		std::vector<double> x1(x.data.begin(), x.data.end());
+		std::vector<double> y1(y.data.begin(), y.data.end());
+
+		std::vector<double> x1(x.data.begin(), x.data.end());
+		std::vector<double> y1(y.data.begin(), y.data.end());
+
+		TGraphPolar* graph = new TGraphPolar(nPoints, x1.data(), y1.data());
+		// настройка толщины линии
+		graph->SetLineWidth(2);
+		if (dotted)
+			graph->SetLineStyle(9);
+		// настройка типа маркера
+		graph->SetMarkerStyle(20);
+		// настройка размера маркера
+		graph->SetMarkerSize(1);
+		// настройка цвета
+		graph->SetMarkerColor(GetAutoColor(countLines));
+		graph->SetLineColor(GetAutoColor(countLines++));
+		// установка названия графика
+		graph->SetTitle(grname.c_str());
+
+		if (first)
+			graph->Draw("LP");
+		else 
+			graph->Draw("P SAME");
+	}
 	void DrawGraphs::DrawAndPrint(string path, std::pair<double, double> yScale)
 	{
 		// Рисуем мультиграф
@@ -385,6 +417,15 @@ namespace ARP::Model
 		canvas->SaveAs(path.c_str());
 
 		//canvas->Close();
+	}
+	void DrawGraphs::DrawAndPrintPolar(string path)
+	{
+		// Обновляем канву
+		canvas->Update();
+
+		// Сохраняем в файл
+		path += "/" + yname + ".png";
+		canvas->SaveAs(path.c_str());
 	}
 	void DrawGraphs::Init()
 	{
