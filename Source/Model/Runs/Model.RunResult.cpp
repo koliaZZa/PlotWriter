@@ -300,12 +300,12 @@ namespace ARP::Model
 				{
 				case RunTypeEnum::AlphaVar:
 				{
-					title = u8"\\hbox{Пуск }" + name + (useRe ? ", Re - " + ReStatusEnum::str(reStatus) : "") + ", \\phi=" + std::to_string(gamma) + "^{\\circ}";
+					title = u8"\\hbox{Пуск }" + name + (useRe ? ", Re - " + ReStatusEnum::str(reStatus) : "") + ", \\phi_{\\Pi}=" + std::to_string(gamma) + "^{\\circ}";
 					break;
 				}
 				case RunTypeEnum::MachVar:
 				{
-					title = u8"\\hbox{Пуск }" + name + (useRe ? ", Re - " + ReStatusEnum::str(reStatus) : "") + ", \\alpha=" + to_str(AlphaNom.value(), 0) + "^{\\circ}" + ", \\phi=" + std::to_string(gamma) + "^{\\circ}";
+					title = u8"\\hbox{Пуск }" + name + (useRe ? ", Re - " + ReStatusEnum::str(reStatus) : "") + ", \\alpha=" + to_str(AlphaNom.value(), 0) + "^{\\circ}" + ", \\phi_{\\Pi}=" + std::to_string(gamma) + "^{\\circ}";
 					break;
 				}
 				default: break;
@@ -314,7 +314,7 @@ namespace ARP::Model
 			}
 			case ARP::Model::ExperimentType::CFD:
 			{
-				title = "CFD, " + string("\\phi=") + std::to_string(gamma) + "^{\\circ}";
+				title = "CFD, " + string("\\phi_{\\Pi}=") + std::to_string(gamma) + "^{\\circ}";
 				break;
 			}
 			default:

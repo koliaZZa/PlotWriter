@@ -8,7 +8,7 @@ namespace ARP::Model
 		return palette[index];
 	}
 
-	void ARP::Model::setupCentralAxes(TMultiGraph* mg, std::pair<double, double> yScale, std::string xname, std::string yname)
+	void ARP::Model::setupCentralAxes(TMultiGraph* mg, std::pair<double, double> xScale, std::pair<double, double> yScale, std::string xname, std::string yname)
 	{
 		// Отключаем стандартные оси
 		/*mg->GetXaxis()->SetAxisColor(0);  // Невидимые стандартные оси
@@ -19,8 +19,8 @@ namespace ARP::Model
 		mg->GetYaxis()->SetTickLength(0);*/
 
 		// Создаем новые оси в центре
-		Double_t xmin = mg->GetXaxis()->GetXmin();
-		Double_t xmax = mg->GetXaxis()->GetXmax();
+		Double_t xmin = xScale.first == 0.0 ? mg->GetXaxis()->GetXmin() : xScale.first;
+		Double_t xmax = xScale.second == 0.0 ? mg->GetXaxis()->GetXmax() : xScale.second;
 
 		Double_t ymin = yScale.first == 0.0 ? mg->GetYaxis()->GetXmin() : yScale.first;
 		Double_t ymax = yScale.second == 0.0 ? mg->GetYaxis()->GetXmax() : yScale.second;
@@ -368,42 +368,55 @@ namespace ARP::Model
 		else 
 			graph->Draw("P SAME");
 	}
-	void DrawGraphs::DrawAndPrint(string path, std::pair<double, double> yScale)
+	void DrawGraphs::DrawAndPrint(string path, std::pair<double, double> yScale, std::pair<double, double> xScale)
 	{
 		// Рисуем мультиграф
-		double min = yScale.first == 0.0 ? multiGraph->GetYaxis()->GetXmin() : yScale.first;
-		double max = yScale.second == 0.0 ? multiGraph->GetYaxis()->GetXmax() : yScale.second;
-		min = min > 0.0 ? 0.0 : min;
-		max = max < 0.0 ? 0.0 : max;
-		if (abs(max - min) < 0.05)
+		double yMin = yScale.first == 0.0 ? multiGraph->GetYaxis()->GetXmin() : yScale.first;
+		double yMax = yScale.second == 0.0 ? multiGraph->GetYaxis()->GetXmax() : yScale.second;
+		yMin = yMin > 0.0 ? 0.0 : yMin;
+		yMax = yMax < 0.0 ? 0.0 : yMax;
+		if (abs(yMax - yMin) < 0.05)
 		{
-			double k = 0.05 / abs(max - min);
-			min *= k;
-			max *= k;
+			double k = 0.05 / abs(yMax - yMin);
+			yMin *= k;
+			yMax *= k;
 		}
-		multiGraph->GetYaxis()->SetRangeUser(min, max);
+		if (graphType == ARP::Model::GraphType::CpPhi)
+		{
+			yMin *= 1.2;
+			yMax *= 1.2;
+		}
+		auto [xMin, xMax] = xScale;
+		multiGraph->GetYaxis()->SetRangeUser(yMin, yMax);
 		multiGraph->GetXaxis()->SetNdivisions(520);
+		//multiGraph->GetXaxis()->SetRangeUser(xMin, xMax);
 
 		switch (graphType)
 		{
 		case ARP::Model::GraphType::Balances:
 			multiGraph->Draw("ACP");  // A - оси, L - линии, C - курвы, P - точки, pmc - автоцвет точек, plc - автоцвет линий
+			if (countLines > 6)
+				canvas->BuildLegend(0.6, 0.2, 0.6, 0.2)->SetNColumns(2);
+			else canvas->BuildLegend();
 			break;
 		case ARP::Model::GraphType::CpPhi:
 			multiGraph->Draw("AP");
+			if (countLines < 5)
+				canvas->BuildLegend();
+			else if (countLines <= 10)
+				canvas->BuildLegend()->SetNColumns(2);
+			else canvas->BuildLegend()->SetNColumns(3);
 			break;
 		case ARP::Model::GraphType::CpX:
 			multiGraph->Draw("ACP");
+			canvas->BuildLegend();
 			break;
 		default:
 			break;
 		}
 
-		if (countLines > 6)
-			canvas->BuildLegend(0.6, 0.2, 0.6, 0.2)->SetNColumns(2);
-		else canvas->BuildLegend();
 		// Отрисовываем красивые декартовы координаты
-		setupCentralAxes(multiGraph, {min, max});
+		setupCentralAxes(multiGraph, xScale, {yMin, yMax});
 		canvas->SetGrid();
 
 		// Обновляем канву

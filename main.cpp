@@ -5,6 +5,7 @@
 
 #include "Include/Model/Plots/Model.PlotCollection.h"
 #include "Include/Model/NewRun.h"
+#include "Include/Model/Runs/Model.RunsInfo.h"
 
 using namespace ARP;
 
@@ -36,7 +37,7 @@ void ProcessBalancesT128(std::ofstream& iLog, bool alphaVar = true, bool machVar
 	CFDRuns.ProcessRuns(false, 2);
 
 	std::pair<double, double> yScale{ 0.0, 0.0 };
-	
+
 	// Alpha var
 	if (alphaVar)
 	{
@@ -52,13 +53,13 @@ void ProcessBalancesT128(std::ofstream& iLog, bool alphaVar = true, bool machVar
 			for (auto& quantity : quantities)
 			{
 				if (quantity == "Xcp1") yScale = { 0.0, 0.5 };
-				else if (quantity == "Xcp2") yScale = { 0.0, 0.15 };
+				else if (quantity == "Xcp2") yScale = { 0.0, 0.20 };
 				else yScale = { 0.0, 0.0 };
 				plotColl.CreatePlot(quantity, "./graphs/balances/M=" + Model::to_str(mach, 3), yScale);
 			}
 
 			// Add CFD
-			size_t nCFDRuns{0};
+			size_t nCFDRuns{ 0 };
 			for (auto& run : CFDRuns.GetRuns())
 			{
 				if ((run->runType == Model::RunTypeEnum::AlphaVar) && (run->GetMachNom() == mach))
@@ -161,41 +162,59 @@ void ProcessBalancesT109(std::ofstream& iLog)
 	FlushErrorMessages(iLog);
 }
 
-void ProcessPressure(string iDataPath, string iPointsDataPath, string iGraphsPath)
+void ProcessPressure(string iDataPath, string iPointsDataPath, string iRunsListPath, string iGraphsPath)
 {
-	NewRun run = NewRun(iDataPath, iPointsDataPath);
-	std::vector< std::shared_ptr<ARP::Model::DrawGraphs>> graphcollections;
+	NewRun run(iDataPath, iPointsDataPath);
+	std::vector< std::shared_ptr<Model::DrawGraphs>> graphcollections;
+
+	Model::RunsInfo runsInfo(iRunsListPath);
 
 	std::string RunName = "";
 
 	//auto phi_vec = run.GetAllPfi();
 	vector<double> phi_vec{ 0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330 };
+	std::unique_ptr<Model::DrawGraphs> graph = nullptr;
+	Model::RunType rType = Model::RunTypeEnum::AlphaVar;
+
 	for (auto phi : phi_vec)
 	{
 		for (size_t i = 0; i < run.colNames.size(); i++)
 		{
-			if (RunName == run.colNames[i])
+			if (RunName != run.colNames[i])
 			{
-				auto data = run.GetGraphDataForPhiConst(phi, i);
-				graphcollections.back()->AddLine(data.first, data.second, "#alpha=" + Model::to_str(run.quantities[7].data[i], 2) + "#circ");
-			}
-			else
-			{
-				if (!graphcollections.empty())
-					graphcollections.back()->DrawAndPrint(iGraphsPath+RunName+"/phi const/", {0.0, 0.0});
-
+				if (graph != nullptr)
+					graph->DrawAndPrint(iGraphsPath + RunName + "/theta=const/", { 0.0, 0.0 }, { 0.0, 1.05 });
 				RunName = run.colNames[i];
 
 				vector<string> runStr = Model::Tokenize(RunName, "_r");
-				string graphTitle = runStr[0] + u8", \\hbox{пуск} " + runStr[1] + ", \\phi=" + std::to_string(int(phi)) + "^{\\circ}";
-				graphcollections.push_back(std::make_shared<ARP::Model::DrawGraphs>(graphTitle, "x", "C_{p}", "x", "phi=" + std::to_string(int(phi)), Model::GraphType::CpPhi));
-				auto data = run.GetGraphDataForPhiConst(phi, i);
-				graphcollections.back()->AddLine(data.first, data.second, "#alpha=" + Model::to_str(run.quantities[7].data[i], 2) + "#circ");
 
+				string type;
+				if (rType == Model::RunTypeEnum::AlphaVar)
+					type = ", M=" + Model::to_str(runsInfo.GetMach(RunName), 3);
+				else type = ", \\alpha=" + Model::to_str(run.quantities[7].data[i], 3);
+				string re = ", Re - " + runsInfo.GetReStatus(RunName);
+				string gamma = ", \\phi_{\\Pi}=" + std::to_string(runsInfo.GetGamma(RunName)) + "^{\\circ}";
+
+				rType = runsInfo.GetRunType(RunName);
+
+				string graphTitle = runStr[0] + u8", \\hbox{пуск }" + runStr[1] + type + re + gamma + ", \\theta=" + std::to_string(int(phi)) + "^{\\circ}";
+				graph = nullptr;
+				graph = std::make_unique<Model::DrawGraphs>(graphTitle, "#frac{x}{L}", "C_{p}", "x", "theta=" + std::to_string(int(phi)), Model::GraphType::CpPhi);
 			}
-			graphcollections.back()->DrawAndPrint(iGraphsPath + RunName + "/phi const/", { 0.0, 0.0 });
+			auto data = run.GetGraphDataForPhiConst(phi, i);
+			if (data.second.status == SignalStatus::Zero) continue;
+			if (rType == Model::RunTypeEnum::AlphaVar)
+			{
+				double alpha = abs(run.quantities[7].data[i]) < 0.5 ? Model::roundTo(run.quantities[7].data[i], 2) : run.quantities[7].data[i];
+				graph->AddLine(data.first, data.second, "#alpha=" + Model::to_str(alpha, 3) + "#circ");
+			}
+			else
+			{
+				graph->AddLine(data.first, data.second, "M=" + Model::to_str(run.quantities[1].data[i], 3));
+			}
 		}
 	}
+	graph = nullptr;
 	graphcollections.clear();
 
 	if (false)
@@ -289,9 +308,9 @@ void InitPressureFolders(string iRootDir, string iRunsList)
 
 	for (string runName : runNames)
 	{
-		fs::create_directories({ iRootDir + "/" + runName + "/phi const/" });
-		fs::create_directories({ iRootDir + "/" + runName + "/x const/" });
-		fs::create_directories({ iRootDir + "/" + runName + "/x const, polar/" });
+		fs::create_directories({ iRootDir + "/" + runName + "/theta=const/" });
+		fs::create_directories({ iRootDir + "/" + runName + "/x=const/" });
+		fs::create_directories({ iRootDir + "/" + runName + "/x=const, polar/" });
 	}
 }
 
@@ -300,13 +319,14 @@ int main() {
 
 	//// Для проверки
 	////Model::drawMultipleGraphs();
-	
+
 	std::ofstream log("./log.txt");
 	//InitPressureFolders("./graphs/pressure/D4.11", "./data/pressure/Cp runs list D4.11.txt");
 	//InitPressureFolders("./graphs/pressure/D5.2", "./data/pressure/Cp runs list D5.2.txt");
-	ProcessPressure("./data/pressure/Cp_d4.11.txt", "./data/pressure/Points_coords_D4.11.txt", "./graphs/pressure/D4.11/");
+	ProcessPressure("./data/pressure/Cp_d4.11.txt", "./data/pressure/Points_coords_D4.11.txt", "./data/pressure/Cp runs list D4.11.txt", "./graphs/pressure/D4.11/");
+	//ProcessPressure("./data/pressure/Cp_d5.2.txt", "./data/pressure/Points_coords_D5.2.txt", "./data/pressure/Cp runs list D5.2.txt", "./graphs/pressure/D5.2/");
 
-	//ProcessBalancesT128(log, true, true);
+	//ProcessBalancesT128(log);
 	//ProcessBalancesT109(log);
 	log.close();
 	app.Run();

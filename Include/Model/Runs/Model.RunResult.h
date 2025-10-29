@@ -132,8 +132,11 @@ namespace ARP::Model
 	struct RunInfo
 	{
 		string name{};
+		string wtunnel{};
+		size_t number{};
 		RunType runType = RunTypeEnum::AlphaVar;
 		ReStatus reStatus = ReStatusEnum::Nom;
+		double machNom = 0.0;
 		int gamma = 0;
 		string comment{};
 	};

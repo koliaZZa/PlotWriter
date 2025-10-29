@@ -38,6 +38,7 @@ set(
 HEADERS
 Include/Model/Runs/Model.Quantity.h
 Include/Model/Runs/Model.RunResult.h
+Include/Model/Runs/Model.RunsInfo.h
 Include/Model/Plots/Model.PlotCollection.h
 Include/Model/Plots/Model.Graph.h
 Include/Model/Common/Model.ErrorReporter.h
@@ -53,6 +54,7 @@ set(
 SOURCES
 Source/Model/Runs/Model.Quantity.cpp
 Source/Model/Runs/Model.RunResult.cpp
+Source/Model/Runs/Model.RunsInfo.cpp
 Source/Model/Plots/Model.PlotCollection.cpp
 Source/Model/Plots/Model.Graph.cpp
 Source/Model/Common/Model.ErrorReporter.cpp

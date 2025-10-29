@@ -15,7 +15,7 @@ namespace ARP::Model
 	{
 		ifstream iFile(path);
 		if (!iFile) return;
-		while(!iFile.eof())
+		while (!iFile.eof())
 			runs.push_back(std::make_shared<ARP::Model::RunResult>(iFile, protocolType));
 	}
 
@@ -65,8 +65,8 @@ namespace ARP::Model
 				if (vTmp.size() < 4) continue;
 
 				if (vTmp.size() == 4)
-					runsComments.push_back({ vTmp[0], RunTypeEnum::enumer(vTmp[1]), ReStatusEnum::enumer(vTmp[2]), std::stoi(vTmp[3]), ""});
-				else runsComments.push_back({ vTmp[0], RunTypeEnum::enumer(vTmp[1]), ReStatusEnum::enumer(vTmp[2]), std::stoi(vTmp[3]), vTmp[4] });
+					runsComments.push_back({ vTmp[0], "", 0, RunTypeEnum::enumer(vTmp[1]), ReStatusEnum::enumer(vTmp[2]), 0.0, std::stoi(vTmp[3]), "" });
+				else runsComments.push_back({ vTmp[0],"", 0, RunTypeEnum::enumer(vTmp[1]), ReStatusEnum::enumer(vTmp[2]), 0.0, std::stoi(vTmp[3]), vTmp[4] });
 			}
 		}
 		else ErrorReporter::PushMessage(ErrorType::FileReading, "Plot collection " + name, "RunsList file " + path + " didn't open");
