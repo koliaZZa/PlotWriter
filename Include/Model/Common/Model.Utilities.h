@@ -8,7 +8,7 @@
 
 using std::vector, std::string, std::minmax, std::pair;
 
-namespace ARP::Model
+namespace Model
 {
 	// Разделить строку на токены по всем делителям в delims
 	vector<string> Tokenize(string iStr, string delims = " \t\r");

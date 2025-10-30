@@ -1,14 +1,14 @@
 ﻿#include "Include/Model/Plots/Model.Graph.h"
 
-namespace ARP::Model
+namespace Model
 {
 	int DrawGraphs::GetAutoColor(int index) {
 		// Используем красивую палитру ROOT
-		int palette[] = { kBlack, kRed, kBlue, kGreen, kOrange, kGray, kViolet, kCyan, 8, 9, 30, 42, 46, 38, 29 };
+		int palette[] = { kBlack, kRed, kBlue, kGreen+1, kOrange, kGray, kViolet, kCyan+1, kYellow-7, kTeal+1, kGray+2, kAzure+1, kMagenta, kOrange-3, kViolet-6, kGreen-7, kRed+2, kCyan-7, kBlue-7, kPink-9 };
 		return palette[index];
 	}
 
-	void ARP::Model::setupCentralAxes(TMultiGraph* mg, std::pair<double, double> xScale, std::pair<double, double> yScale, std::string xname, std::string yname)
+	void setupCentralAxes(TMultiGraph* mg, std::pair<double, double> xScale, std::pair<double, double> yScale, std::string xname, std::string yname)
 	{
 		// Отключаем стандартные оси
 		/*mg->GetXaxis()->SetAxisColor(0);  // Невидимые стандартные оси
@@ -315,7 +315,7 @@ namespace ARP::Model
 		Init();
 		multiGraph->SetTitle((ititle + ";" + ixtitle + ";" + iytitle).c_str());
 	}
-	void DrawGraphs::AddLine(Model::Quantity x, Model::Quantity y, std::string grname, bool dotted)
+	void DrawGraphs::AddLine(Model::Quantity x, Model::Quantity y, std::string grname, bool dotted, bool onlyLine)
 	{
 		const size_t nPoints = x.data.size();
 		// установка
@@ -327,6 +327,7 @@ namespace ARP::Model
 		graph->SetLineWidth(2);
 		if (dotted)
 			graph->SetLineStyle(9);
+
 		// настройка типа маркера
 		graph->SetMarkerStyle(20);
 		// настройка размера маркера
@@ -334,9 +335,24 @@ namespace ARP::Model
 		// настройка цвета
 		graph->SetMarkerColor(GetAutoColor(countLines));
 		graph->SetLineColor(GetAutoColor(countLines++));
+
+		if (graphType == GraphType::CpPhi)
+		{
+			if (onlyLine)
+			{
+				graph->SetMarkerStyle(4);
+				graph->SetMarkerSize(0.0);
+
+			}
+			else
+			{
+				//graph->SetLineColorAlpha(kBlue, 0.35);
+				graph->SetLineWidth(0.0);
+			}
+		}
 		// установка названия графика
 		graph->SetTitle(grname.c_str());
-
+		bool gl = canvas->UseGL();
 		multiGraph->Add(graph);
 	}
 	void DrawGraphs::AddLinePolar(Model::Quantity x, Model::Quantity y, std::string grname, bool first , bool dotted)
@@ -381,7 +397,7 @@ namespace ARP::Model
 			yMin *= k;
 			yMax *= k;
 		}
-		if (graphType == ARP::Model::GraphType::CpPhi)
+		if (graphType == GraphType::CpPhi)
 		{
 			yMin *= 1.2;
 			yMax *= 1.2;
@@ -393,21 +409,21 @@ namespace ARP::Model
 
 		switch (graphType)
 		{
-		case ARP::Model::GraphType::Balances:
+		case GraphType::Balances:
 			multiGraph->Draw("ACP");  // A - оси, L - линии, C - курвы, P - точки, pmc - автоцвет точек, plc - автоцвет линий
 			if (countLines > 6)
 				canvas->BuildLegend(0.6, 0.2, 0.6, 0.2)->SetNColumns(2);
 			else canvas->BuildLegend();
 			break;
-		case ARP::Model::GraphType::CpPhi:
-			multiGraph->Draw("AP");
+		case GraphType::CpPhi:
+			multiGraph->Draw("ALP");
 			if (countLines < 5)
 				canvas->BuildLegend();
 			else if (countLines <= 10)
 				canvas->BuildLegend()->SetNColumns(2);
 			else canvas->BuildLegend()->SetNColumns(3);
 			break;
-		case ARP::Model::GraphType::CpX:
+		case GraphType::CpX:
 			multiGraph->Draw("ACP");
 			canvas->BuildLegend();
 			break;
@@ -416,7 +432,8 @@ namespace ARP::Model
 		}
 
 		// Отрисовываем красивые декартовы координаты
-		setupCentralAxes(multiGraph, xScale, {yMin, yMax});
+		//setupCentralAxes(multiGraph, xScale, {yMin, yMax});
+		setupCentralAxes(multiGraph, {0.0, 0.0}, { yMin, yMax });
 		canvas->SetGrid();
 
 		// Обновляем канву
@@ -442,5 +459,6 @@ namespace ARP::Model
 		count++;
 		multiGraph = new TMultiGraph();
 		canvas = new TCanvas(("canvas" + std::to_string(count)).c_str(), "", 1200, 800);
+		canvas->SetSupportGL(true);
 	}
 }

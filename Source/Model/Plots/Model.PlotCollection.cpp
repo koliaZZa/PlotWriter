@@ -1,10 +1,10 @@
 ﻿#include "Include/Model/Plots/Model.PlotCollection.h"
 
-namespace ARP::Model
+namespace Model
 {
 	string PlotCollection::OpenRun(string path, ProtocolType protocolType)
 	{
-		ARP::Model::RunResultPtr pRun = std::make_shared<ARP::Model::RunResult>(path, protocolType);
+		RunResultPtr pRun = std::make_shared<RunResult>(path, protocolType);
 		if (pRun->IsEmpty())
 			return "";
 		runs.push_back(pRun);
@@ -16,7 +16,7 @@ namespace ARP::Model
 		ifstream iFile(path);
 		if (!iFile) return;
 		while (!iFile.eof())
-			runs.push_back(std::make_shared<ARP::Model::RunResult>(iFile, protocolType));
+			runs.push_back(std::make_shared<RunResult>(iFile, protocolType));
 	}
 
 	void PlotCollection::AddRun(RunResultPtr ipRun)
@@ -81,7 +81,7 @@ namespace ARP::Model
 			runs.erase(it);
 	}
 
-	void PlotCollection::CreatePlot(std::string iyName, string path, pair<double, double> yScale, std::string iTitle)
+	void PlotCollection::CreatePlot(std::string iyName, string path, pair<double, double> yScale, std::string iTitle, std::string bannedRuns)
 	{
 		if (runs.empty()) return;
 		Quantity x{ (*runs.begin())->GetQuantity(xAxisName) };
@@ -103,12 +103,19 @@ namespace ARP::Model
 			}
 		}
 
+		vector<string> vBannedRuns = Tokenize(bannedRuns);
+
 		DrawGraphsPtr plot = std::make_shared<DrawGraphs>(iTitle, x.title, y.title, xAxisName, iyName);
 		string yname = plot->yname;
 		for (auto& run : runs)
 		{
+			auto iter = std::find(vBannedRuns.begin(), vBannedRuns.end(), run->name);
+			if (iter != vBannedRuns.end()) continue;
+
 			Quantity x{ run->GetQuantity(xAxisName) };
-			plot->AddLine(x, run->GetQuantity(yname), run->title, run->GetExperimentType() == ExperimentType::CFD);
+			Quantity y{ run->GetQuantity(yname) };
+			//if (y.status == SignalStatus::Zero) continue;
+			plot->AddLine(x, y, run->title, run->GetExperimentType() == ExperimentType::CFD);
 		}
 		plot->DrawAndPrint(path, yScale);
 	}

@@ -8,7 +8,7 @@
 
 using std::vector, std::pair, std::optional, std::array;
 
-namespace ARP::Model
+namespace Model
 {
 	// Матрица 3x3
 	using matrix3 = array<array<double, 3>, 3>;

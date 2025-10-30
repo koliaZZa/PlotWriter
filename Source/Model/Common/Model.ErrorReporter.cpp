@@ -1,6 +1,6 @@
 #include "Include/Model/Common/Model.ErrorReporter.h"
 
-namespace ARP::Model
+namespace Model
 {
 	void ErrorReporter::PushMessage(ErrorType errType, string object, string message)
 	{

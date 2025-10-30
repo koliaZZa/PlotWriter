@@ -9,7 +9,7 @@ namespace rj = rapidjson;
 namespace rju = rapidjson::utils;
 using std::vector, std::string;
 
-namespace ARP::Model
+namespace Model
 {
 	// Абстрактный класс модели объекта
 	class Object

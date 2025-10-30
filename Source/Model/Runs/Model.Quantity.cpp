@@ -1,6 +1,6 @@
-#include "Include/Model/Runs/Model.Quantity.h"
+п»ї#include "Include/Model/Runs/Model.Quantity.h"
 
-namespace ARP::Model
+namespace Model
 {
 	Quantity::Quantity(string iName, vector<double>&& iData) : Object(iName, iName), data{ iData }
 	{
@@ -40,11 +40,11 @@ namespace ARP::Model
 		rj::Document doc;
 		doc.SetObject();
 
-		// Сохранение общих данных
+		// РЎРѕС…СЂР°РЅРµРЅРёРµ РѕР±С‰РёС… РґР°РЅРЅС‹С…
 		WriteHeader(doc, allocator);
 		rju::AddDouble(doc, allocator, "Range", range);
 
-		// Сохранение числовых данных
+		// РЎРѕС…СЂР°РЅРµРЅРёРµ С‡РёСЃР»РѕРІС‹С… РґР°РЅРЅС‹С…
 		rj::Value array(rj::kArrayType);
 		for (auto item : data)
 			array.PushBack(item, allocator);
@@ -53,10 +53,10 @@ namespace ARP::Model
 	}
 	void Quantity::Load(const rj::Value& doc)
 	{
-		// Считывание общих данных
+		// РЎС‡РёС‚С‹РІР°РЅРёРµ РѕР±С‰РёС… РґР°РЅРЅС‹С…
 		ReadHeader(doc);
 
-		// Считывание данных
+		// РЎС‡РёС‚С‹РІР°РЅРёРµ РґР°РЅРЅС‹С…
 		for (auto& item : doc["Data"].GetArray())
 			data.push_back(item.GetDouble());
 
@@ -79,5 +79,22 @@ namespace ARP::Model
 		extName = iextName;
 		name = iName;
 		title = iTitle;
+	}
+	QuantityOpt::QuantityOpt(string iName, vector<std::optional<double>>&& iData) : Object(iName, iName), data{ iData }
+	{
+		double max{}, min{};
+		for (auto& num : data)
+		{
+			if (!num.has_value()) continue;
+			if (num.value() > max) max = num.value();
+			if (num.value() < min) min = num.value();
+		}
+
+		if ((max > 0) && (min > 0))
+			range = max;
+		else if ((max < 0) && (min < 0))
+			range = -min;
+		else range = max - min;
+
 	}
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <fstream>
 #include <string>
@@ -25,15 +25,15 @@ public:
 
 	std::vector<double> GetAllX();
 
-	std::pair<ARP::Model::Quantity, ARP::Model::Quantity> GetGraphDataForPhiConst(double Pfi, size_t i);
-	std::tuple<ARP::Model::Quantity, ARP::Model::Quantity, std::string> GetGraphDataForXConst(size_t x_point, size_t start, size_t end);
-	std::tuple<ARP::Model::Quantity, ARP::Model::Quantity, std::string> GetGraphDataForXConstPolar(double x, size_t col);
+	std::pair<Model::Quantity, Model::Quantity> GetGraphDataForPhiConst(double Pfi, size_t i);
+	std::tuple<Model::Quantity, Model::Quantity, std::string> GetGraphDataForXConst(size_t x_point, size_t start, size_t end);
+	std::tuple<Model::Quantity, Model::Quantity, std::string> GetGraphDataForXConstPolar(double x, size_t col);
 
-	//std::pair<ARP::Model::Quantity, ARP::Model::Quantity> GetGraphDataForPhiConst(double Pfi, size_t i);
+	//std::pair<Model::QuantityOpt, Model::QuantityOpt> GetGraphDataForPhiConst(double Pfi, size_t i);
 
-	std::vector<ARP::Model::Quantity> quantities;
+	std::vector<Model::QuantityOpt> quantities;
 	std::vector<std::string> quantitiesNames;
 	std::vector<std::string> colNames;
-	std::vector<ARP::Model::Quantity> cord_table;
+	std::vector<Model::Quantity> cord_table;
 
 };

@@ -20,7 +20,7 @@ using std::vector, std::string, std::pair;
 using std::ifstream, std::ofstream;
 using std::shared_ptr;
 
-namespace ARP::Model
+namespace Model
 {
 	typedef int ProtocolType;
 	typedef int RunType;

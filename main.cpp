@@ -6,8 +6,7 @@
 #include "Include/Model/Plots/Model.PlotCollection.h"
 #include "Include/Model/NewRun.h"
 #include "Include/Model/Runs/Model.RunsInfo.h"
-
-using namespace ARP;
+#include "Include/Model/Runs/Model.CFDPressureData.h"
 
 inline void FlushErrorMessages(std::ofstream& iFile)
 {
@@ -83,6 +82,8 @@ void ProcessBalancesT128(std::ofstream& iLog, bool alphaVar = true, bool machVar
 	if (machVar)
 	{
 		Model::PlotCollection machVarPlots("Mach");
+		string bannedRuns{};
+
 		for (auto& run : allRuns.GetRuns())
 		{
 			if (run->runType == Model::RunTypeEnum::MachVar)
@@ -90,10 +91,22 @@ void ProcessBalancesT128(std::ofstream& iLog, bool alphaVar = true, bool machVar
 		}
 		for (auto& quantity : quantities)
 		{
-			if (quantity == "Xcp1") yScale = { 0.0, 0.5 };
-			else if (quantity == "Xcp2") yScale = { 0.0, 0.1 };
-			else yScale = { 0.0, 0.0 };
-			machVarPlots.CreatePlot(quantity, "./graphs/balances/Mach var", yScale);
+			if (quantity == "Xcp1")
+			{
+				yScale = { 0.0, 0.5 };
+				bannedRuns = "1044";
+			}
+			else if (quantity == "Xcp2")
+			{
+				yScale = { 0.0, 0.1 };
+				bannedRuns = "1044";
+			}
+			else
+			{
+				yScale = { 0.0, 0.0 };
+				bannedRuns = "";
+			}
+			machVarPlots.CreatePlot(quantity, "./graphs/balances/Mach var", yScale, "", bannedRuns);
 		}
 	}
 
@@ -162,12 +175,15 @@ void ProcessBalancesT109(std::ofstream& iLog)
 	FlushErrorMessages(iLog);
 }
 
-void ProcessPressure(string iDataPath, string iPointsDataPath, string iRunsListPath, string iGraphsPath)
+void ProcessPressure(string iDataPath, string iPointsDataPath, string iRunsListPath, string iGraphsPath, ofstream& log)
 {
 	NewRun run(iDataPath, iPointsDataPath);
 	std::vector< std::shared_ptr<Model::DrawGraphs>> graphcollections;
 
 	Model::RunsInfo runsInfo(iRunsListPath);
+
+	Model::CFDPressureData cfdData("./data/pressure/CFD Data/");
+	FlushErrorMessages(log);
 
 	std::string RunName = "";
 
@@ -180,38 +196,47 @@ void ProcessPressure(string iDataPath, string iPointsDataPath, string iRunsListP
 	{
 		for (size_t i = 0; i < run.colNames.size(); i++)
 		{
+
 			if (RunName != run.colNames[i])
 			{
+				// Finishing graph
 				if (graph != nullptr)
 					graph->DrawAndPrint(iGraphsPath + RunName + "/theta=const/", { 0.0, 0.0 }, { 0.0, 1.05 });
-				RunName = run.colNames[i];
 
+				// Init new graph
+				RunName = run.colNames[i];
+				rType = runsInfo.GetRunType(RunName);
 				vector<string> runStr = Model::Tokenize(RunName, "_r");
 
 				string type;
 				if (rType == Model::RunTypeEnum::AlphaVar)
 					type = ", M=" + Model::to_str(runsInfo.GetMach(RunName), 3);
-				else type = ", \\alpha=" + Model::to_str(run.quantities[7].data[i], 3);
+				else type = ", \\alpha=" + Model::to_str(run.quantities[7].data[i].value(), 3) + "^{\\circ}";
 				string re = ", Re - " + runsInfo.GetReStatus(RunName);
 				string gamma = ", \\phi_{\\Pi}=" + std::to_string(runsInfo.GetGamma(RunName)) + "^{\\circ}";
-
-				rType = runsInfo.GetRunType(RunName);
 
 				string graphTitle = runStr[0] + u8", \\hbox{пуск }" + runStr[1] + type + re + gamma + ", \\theta=" + std::to_string(int(phi)) + "^{\\circ}";
 				graph = nullptr;
 				graph = std::make_unique<Model::DrawGraphs>(graphTitle, "#frac{x}{L}", "C_{p}", "x", "theta=" + std::to_string(int(phi)), Model::GraphType::CpPhi);
+
+				// CFD
+				vector<Model::QuantityLine> cfdLines = cfdData.GetRunLines(runsInfo.GetMach(RunName), runsInfo.GetGamma(RunName), phi);
+				if (!cfdLines.empty())
+				{
+					for (auto& line : cfdLines)
+						graph->AddLine(line.x, line.y, "CFD, #alpha=" + Model::to_str(line.alpha, 2) + "#circ", false, true);
+				}
 			}
+			// Add current line
 			auto data = run.GetGraphDataForPhiConst(phi, i);
-			if (data.second.status == SignalStatus::Zero) continue;
 			if (rType == Model::RunTypeEnum::AlphaVar)
 			{
-				double alpha = abs(run.quantities[7].data[i]) < 0.5 ? Model::roundTo(run.quantities[7].data[i], 2) : run.quantities[7].data[i];
+				double alpha = run.quantities[7].data[i].value();
+				alpha = abs(alpha) < 0.5 ? Model::roundTo(alpha, 2) : alpha;
 				graph->AddLine(data.first, data.second, "#alpha=" + Model::to_str(alpha, 3) + "#circ");
 			}
 			else
-			{
-				graph->AddLine(data.first, data.second, "M=" + Model::to_str(run.quantities[1].data[i], 3));
-			}
+				graph->AddLine(data.first, data.second, "M=" + Model::to_str(run.quantities[1].data[i].value(), 3));
 		}
 	}
 	graph = nullptr;
@@ -240,12 +265,12 @@ void ProcessPressure(string iDataPath, string iPointsDataPath, string iRunsListP
 
 			for (auto x : x_vec)
 			{
-				graphcollections.push_back(std::make_shared<ARP::Model::DrawGraphs>(RunName, "#alpha", "Cp", "", ""));
+				graphcollections.push_back(std::make_shared<Model::DrawGraphs>(RunName, "#alpha", "Cp", "", ""));
 				for (size_t row = 0; row < run.cord_table.size(); row++)
 				{
 					size_t calbr_row = row + 8;
 
-					if (x == ARP::Model::roundTo(run.cord_table[row].data[0], 5))
+					if (x == Model::roundTo(run.cord_table[row].data[0], 5))
 					{
 						auto data = run.GetGraphDataForXConst(calbr_row, start, end);
 						graphcollections.back()->AddLine(std::get<0>(data), std::get<1>(data), std::get<2>(data));
@@ -276,7 +301,7 @@ void ProcessPressure(string iDataPath, string iPointsDataPath, string iRunsListP
 
 					RunName = run.colNames[i];
 
-					graphcollections.push_back(std::make_shared<ARP::Model::DrawGraphs>(RunName, "fi", "Cp", "", ""));
+					graphcollections.push_back(std::make_shared<Model::DrawGraphs>(RunName, "fi", "Cp", "", ""));
 					auto data = run.GetGraphDataForXConstPolar(x, i);
 					graphcollections.back().get()->AddLine(std::get<0>(data), std::get<1>(data), std::get<2>(data));
 				}
@@ -323,10 +348,10 @@ int main() {
 	std::ofstream log("./log.txt");
 	//InitPressureFolders("./graphs/pressure/D4.11", "./data/pressure/Cp runs list D4.11.txt");
 	//InitPressureFolders("./graphs/pressure/D5.2", "./data/pressure/Cp runs list D5.2.txt");
-	ProcessPressure("./data/pressure/Cp_d4.11.txt", "./data/pressure/Points_coords_D4.11.txt", "./data/pressure/Cp runs list D4.11.txt", "./graphs/pressure/D4.11/");
-	//ProcessPressure("./data/pressure/Cp_d5.2.txt", "./data/pressure/Points_coords_D5.2.txt", "./data/pressure/Cp runs list D5.2.txt", "./graphs/pressure/D5.2/");
+	ProcessPressure("./data/pressure/Cp_d4.11.txt", "./data/pressure/Points_coords_D4.11.txt", "./data/pressure/Cp runs list D4.11.txt", "./graphs/pressure/D4.11/", log);
+	//ProcessPressure("./data/pressure/Cp_d5.2.txt", "./data/pressure/Points_coords_D5.2.txt", "./data/pressure/Cp runs list D5.2.txt", "./graphs/pressure/D5.2/", log);
 
-	//ProcessBalancesT128(log);
+	//ProcessBalancesT128(log, false, true);
 	//ProcessBalancesT109(log);
 	log.close();
 	app.Run();

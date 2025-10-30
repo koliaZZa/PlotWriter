@@ -1,6 +1,6 @@
 ﻿#include "Include/Model/Common/Model.Utilities.h"
 
-namespace ARP::Model
+namespace Model
 {
 	vector<string> Tokenize(string iStr, string delims)
 	{

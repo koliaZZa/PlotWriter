@@ -1,6 +1,6 @@
 ﻿#include "Include/Model/Runs/Model.RunsInfo.h"
 
-namespace ARP::Model
+namespace Model
 {
 	RunsInfo::RunsInfo(string iRunsListPath)
 	{

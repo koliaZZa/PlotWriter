@@ -4,7 +4,7 @@
 
 using std::string, std::queue;
 
-namespace ARP::Model
+namespace Model
 {
 	enum class ErrorType
 	{

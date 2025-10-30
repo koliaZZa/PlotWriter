@@ -1,7 +1,8 @@
-#pragma once
+п»ї#pragma once
 #include <string>
 #include <vector>
 #include <memory>
+#include <optional>
 
 #include "Include/Model/Common/Model.Object.h"
 
@@ -10,17 +11,17 @@ using std::vector, std::string;
 
 enum class SignalStatus
 {
-	// Нормальный
+	// РќРѕСЂРјР°Р»СЊРЅС‹Р№
 	Normal,
-	// Нулевой уровень
+	// РќСѓР»РµРІРѕР№ СѓСЂРѕРІРµРЅСЊ
 	Zero,
-	// Зашкал
+	// Р—Р°С€РєР°Р»
 	Exceeded
 };
 
-namespace ARP::Model
+namespace Model
 {
-	// Класс физической величины
+	// РљР»Р°СЃСЃ С„РёР·РёС‡РµСЃРєРѕР№ РІРµР»РёС‡РёРЅС‹
 	class Quantity : public Object
 	{
 	public:
@@ -29,29 +30,58 @@ namespace ARP::Model
 		Quantity(const rj::Value& doc) : Object() { Load(doc); };
 		~Quantity() = default;
 
-		// Сохранить в json-документ
+		// РЎРѕС…СЂР°РЅРёС‚СЊ РІ json-РґРѕРєСѓРјРµРЅС‚
 		virtual rj::Document Save(rj::MemoryPoolAllocator<>& allocator) override;
-		// Загрузить из json-документа
+		// Р—Р°РіСЂСѓР·РёС‚СЊ РёР· json-РґРѕРєСѓРјРµРЅС‚Р°
 		virtual void Load(const rj::Value& doc) override;
 
-		// Отнормировать данные
+		// РћС‚РЅРѕСЂРјРёСЂРѕРІР°С‚СЊ РґР°РЅРЅС‹Рµ
 		void Normalize(bool normalize);
-		// Установить имена и заголовок
+		// РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РёРјРµРЅР° Рё Р·Р°РіРѕР»РѕРІРѕРє
 		void SetNames(string iextName, string iName, string iTitle);
 
-		vector<double> data;							// Список значений
-		double range = 0;								// Диапазон данных
-		SignalStatus status = SignalStatus::Normal;		// Статус сигнала
+		vector<double> data;							// РЎРїРёСЃРѕРє Р·РЅР°С‡РµРЅРёР№
+		double range = 0;								// Р”РёР°РїР°Р·РѕРЅ РґР°РЅРЅС‹С…
+		SignalStatus status = SignalStatus::Normal;		// РЎС‚Р°С‚СѓСЃ СЃРёРіРЅР°Р»Р°
 
-		// Получить кол-во значений
+		// РџРѕР»СѓС‡РёС‚СЊ РєРѕР»-РІРѕ Р·РЅР°С‡РµРЅРёР№
 		size_t GetSize() const { return data.size(); };
-		// Проверка на пустоту
+		// РџСЂРѕРІРµСЂРєР° РЅР° РїСѓСЃС‚РѕС‚Сѓ
 		bool IsEmpty() const { return data.empty(); };
 
 	protected:
 
 	};
 	using QuantityPtr = std::shared_ptr<Quantity>;
+
+	class QuantityOpt : public Object
+	{
+	public:
+		QuantityOpt() = default;
+		QuantityOpt(string iName, vector<std::optional<double>>&& iData);
+		QuantityOpt(const rj::Value& doc) : Object() { Load(doc); };
+		~QuantityOpt() = default;
+
+		// РЎРѕС…СЂР°РЅРёС‚СЊ РІ json-РґРѕРєСѓРјРµРЅС‚
+		virtual rj::Document Save(rj::MemoryPoolAllocator<>& allocator) override { return rj::Document(); };
+		// Р—Р°РіСЂСѓР·РёС‚СЊ РёР· json-РґРѕРєСѓРјРµРЅС‚Р°
+		virtual void Load(const rj::Value& doc) override {};
+
+
+		vector<std::optional<double>> data;							// РЎРїРёСЃРѕРє Р·РЅР°С‡РµРЅРёР№
+		double range = 0;								// Р”РёР°РїР°Р·РѕРЅ РґР°РЅРЅС‹С…
+		SignalStatus status = SignalStatus::Normal;		// РЎС‚Р°С‚СѓСЃ СЃРёРіРЅР°Р»Р°
+
+		// РџРѕР»СѓС‡РёС‚СЊ РєРѕР»-РІРѕ Р·РЅР°С‡РµРЅРёР№
+		size_t GetSize() const { return data.size(); };
+		// РџСЂРѕРІРµСЂРєР° РЅР° РїСѓСЃС‚РѕС‚Сѓ
+		bool IsEmpty() const { return data.empty(); };
+
+	protected:
+
+	};
+	using QuantityOptPtr = std::shared_ptr<QuantityOpt>;
+
 
 	inline bool swap(Quantity* q1, Quantity* q2, bool inverseFirst = false, bool inverseSecond = false)
 	{

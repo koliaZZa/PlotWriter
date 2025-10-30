@@ -1,14 +1,14 @@
-#include "Include/Model/NewRun.h"
+Ôªø#include "Include/Model/NewRun.h"
 
 NewRun::NewRun(std::string iFilePath, std::string iFilePath_Cords)
 {
 	std::ifstream iFile(iFilePath);
-	Table table = ARP::Model::ReadTable(iFile);
+	Table table = Model::ReadTable(iFile);
 	iFile.close();
 
 	std::ifstream iFile_Cords(iFilePath_Cords);
 	std::getline(iFile_Cords, std::string());
-	Table cords_table = ARP::Model::ReadTable(iFile_Cords);
+	Table cords_table = Model::ReadTable(iFile_Cords);
 	iFile_Cords.close();
 
 
@@ -18,14 +18,14 @@ NewRun::NewRun(std::string iFilePath, std::string iFilePath_Cords)
 	for (size_t row = 1; row < table.size(); row++)
 	{
 		string name = table[row][0];
-		if (name == "N") continue;		// œÓÔÛÒÍ‡ÂÏ ÒÚÓÎ·Âˆ Ò ÌÓÏÂÓÏ ÓÚÒ˜ÂÚ‡
-		vector<double> data;
+		if (name == "N") continue;		// –ü—Ä–æ–ø—É—Å–∫–∞–µ–º —Å—Ç–æ–ª–±–µ—Ü —Å –Ω–æ–º–µ—Ä–æ–º –æ—Ç—Å—á–µ—Ç–∞
+		vector<std::optional<double>> data;
 		quantitiesNames.push_back(name);
 		for (size_t col = 1; col < table[1].size(); col++)
 		{
 			if (table[row][col] != "-")
 				data.push_back(std::stof(table[row][col]));
-			else data.push_back(0.0);
+			else data.push_back(std::nullopt);
 		}
 		quantities.emplace_back(name, std::move(data));
 	}
@@ -33,7 +33,7 @@ NewRun::NewRun(std::string iFilePath, std::string iFilePath_Cords)
 	for (size_t row = 0; row < cords_table.size(); row++)
 	{
 		string name = cords_table[row][0];
-		if (name == "N") continue;		// œÓÔÛÒÍ‡ÂÏ ÒÚÓÎ·Âˆ Ò ÌÓÏÂÓÏ ÓÚÒ˜ÂÚ‡
+		if (name == "N") continue;		// –ü—Ä–æ–ø—É—Å–∫–∞–µ–º —Å—Ç–æ–ª–±–µ—Ü —Å –Ω–æ–º–µ—Ä–æ–º –æ—Ç—Å—á–µ—Ç–∞
 		vector<double> data;
 		for (size_t col = 1; col < cords_table[0].size(); col++)
 		{
@@ -49,12 +49,12 @@ NewRun::NewRun(std::string iFilePath, std::string iFilePath_Cords)
 std::vector<double> NewRun::GetAllPfi()
 {
 	vector<double> data;
-	for (auto quantity : cord_table)
+	for (auto& quantity : cord_table)
 	{
 		bool flag = true;
-		double phi = ARP::Model::roundTo(quantity.data[1], 2);
+		double phi = Model::roundTo(quantity.data[1], 2);
 		for (auto item : data)
-			if (phi == ARP::Model::roundTo(item, 2))
+			if (phi == Model::roundTo(item, 2))
 			{
 				flag = false;
 				break;
@@ -70,12 +70,12 @@ std::vector<double> NewRun::GetAllPfi()
 std::vector<double> NewRun::GetAllX()
 {
 	vector<double> data;
-	for (auto quantity : cord_table)
+	for (auto& quantity : cord_table)
 	{
 		bool flag = true;
-		double x = ARP::Model::roundTo(quantity.data[0], 5);
+		double x = Model::roundTo(quantity.data[0], 5);
 		for (auto item : data)
-			if (x == ARP::Model::roundTo(item, 5))
+			if (x == Model::roundTo(item, 5))
 			{
 				flag = false;
 				break;
@@ -88,7 +88,7 @@ std::vector<double> NewRun::GetAllX()
 	return data;
 }
 
-std::pair<ARP::Model::Quantity, ARP::Model::Quantity> NewRun::GetGraphDataForPhiConst(double Pfi, size_t i)
+std::pair<Model::Quantity, Model::Quantity> NewRun::GetGraphDataForPhiConst(double Pfi, size_t i)
 {
 	vector<double> x_data;
 	vector<double> y_data;
@@ -96,21 +96,22 @@ std::pair<ARP::Model::Quantity, ARP::Model::Quantity> NewRun::GetGraphDataForPhi
 	for (size_t col = 0; col < cord_table.size(); col++)
 	{
 		size_t j = col + 8;
-		auto Pfi_cheak = ARP::Model::roundTo(cord_table[col].data[1], 2);
-		if (Pfi == ARP::Model::roundTo(cord_table[col].data[1], 2))
+		auto Pfi_cheak = Model::roundTo(cord_table[col].data[1], 2);
+		if (Pfi == Model::roundTo(cord_table[col].data[1], 2))
 		{
+			if (!quantities[j].data[i].has_value()) continue;
 			x_data.push_back(cord_table[col].data[0]);
-			y_data.push_back(quantities[j].data[i]);
+			y_data.push_back(quantities[j].data[i].value());
 		}
 	}
 
-	ARP::Model::Quantity x { "", std::move(x_data)};
-	ARP::Model::Quantity y { "", std::move(y_data)};
+	Model::Quantity x { "", std::move(x_data)};
+	Model::Quantity y { "", std::move(y_data)};
 	
-	return std::pair<ARP::Model::Quantity, ARP::Model::Quantity> {x, y};
+	return std::pair<Model::Quantity, Model::Quantity> {x, y};
 }
 
-std::tuple<ARP::Model::Quantity, ARP::Model::Quantity, std::string> NewRun::GetGraphDataForXConst(size_t x_point, size_t start, size_t end)
+std::tuple<Model::Quantity, Model::Quantity, std::string> NewRun::GetGraphDataForXConst(size_t x_point, size_t start, size_t end)
 {
 	vector<double> x_data;
 	vector<double> y_data;
@@ -118,17 +119,19 @@ std::tuple<ARP::Model::Quantity, ARP::Model::Quantity, std::string> NewRun::GetG
 
 	for (size_t i = start; i < end; i++)
 	{
-		x_data.push_back(quantities[7].data[i]);
-		y_data.push_back(quantities[x_point].data[i]);
+		if (!quantities[x_point].data[i].has_value() || !quantities[7].data[i].has_value()) continue;
+
+		x_data.push_back(quantities[7].data[i].value());
+		y_data.push_back(quantities[x_point].data[i].value());
 	}
 
-	ARP::Model::Quantity qx{ "", std::move(x_data) };
-	ARP::Model::Quantity qy{ "", std::move(y_data) };
+	Model::Quantity qx{ "", std::move(x_data) };
+	Model::Quantity qy{ "", std::move(y_data) };
 
-	return  std::tuple<ARP::Model::Quantity, ARP::Model::Quantity, std::string> {qx, qy, name};
+	return  std::tuple<Model::Quantity, Model::Quantity, std::string> {qx, qy, name};
 }
 
-std::tuple<ARP::Model::Quantity, ARP::Model::Quantity, std::string> NewRun::GetGraphDataForXConstPolar(double x, size_t col)
+std::tuple<Model::Quantity, Model::Quantity, std::string> NewRun::GetGraphDataForXConstPolar(double x, size_t col)
 {
 	vector<double> x_data;
 	vector<double> y_data;
@@ -137,15 +140,16 @@ std::tuple<ARP::Model::Quantity, ARP::Model::Quantity, std::string> NewRun::GetG
 	for (size_t i = 0; i < cord_table.size(); i++)
 	{
 		size_t j = i + 8;
-		if (x == ARP::Model::roundTo(cord_table[i].data[0], 5))
+		if (x == Model::roundTo(cord_table[i].data[0], 5))
 		{
+			if (!quantities[j].data[col].has_value()) continue;
 			x_data.push_back(cord_table[i].data[1] * TMath::Pi() / 180.0);
-			y_data.push_back(quantities[j].data[col]);
+			y_data.push_back(quantities[j].data[col].value());
 		}
 	}
 
-	ARP::Model::Quantity qx{ "", std::move(x_data) };
-	ARP::Model::Quantity qy{ "", std::move(y_data) };
+	Model::Quantity qx{ "", std::move(x_data) };
+	Model::Quantity qy{ "", std::move(y_data) };
 
-	return  std::tuple<ARP::Model::Quantity, ARP::Model::Quantity, std::string> {qx, qy, name};
+	return  std::tuple<Model::Quantity, Model::Quantity, std::string> {qx, qy, name};
 }

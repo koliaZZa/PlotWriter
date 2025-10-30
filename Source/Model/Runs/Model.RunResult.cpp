@@ -1,6 +1,6 @@
 ﻿#include "Include/Model/Runs/Model.RunResult.h"
 
-namespace ARP::Model
+namespace Model
 {
 	RunResult::RunResult(string iFilePath, ProtocolType iProtocolType) : protocolType{ iProtocolType }
 	{
@@ -254,12 +254,12 @@ namespace ARP::Model
 		{
 			switch (expType)
 			{
-			case ARP::Model::ExperimentType::WindTunnelTest:
+			case ExperimentType::WindTunnelTest:
 			{
 				title = u8"Пуск " + name + ", Re - " + ReStatusEnum::str(reStatus) + u8", φ=" + std::to_string(gamma) + u8"°";
 				break;
 			}
-			case ARP::Model::ExperimentType::CFD:
+			case ExperimentType::CFD:
 			{
 				title = "CFD, " + string(u8", φ=") + std::to_string(gamma) + u8"°";
 				break;
@@ -272,12 +272,12 @@ namespace ARP::Model
 		{
 			switch (expType)
 			{
-			case ARP::Model::ExperimentType::WindTunnelTest:
+			case ExperimentType::WindTunnelTest:
 			{
 				title = "Run " + name + ", Re - " + ReStatusEnum::str(reStatus) + u8", φ=" + std::to_string(gamma) + u8"°";
 				break;
 			}
-			case ARP::Model::ExperimentType::CFD:
+			case ExperimentType::CFD:
 			{
 				title = "CFD, " + string(u8", φ=") + std::to_string(gamma) + u8"°";
 				break;
@@ -294,7 +294,7 @@ namespace ARP::Model
 		{
 			switch (expType)
 			{
-			case ARP::Model::ExperimentType::WindTunnelTest:
+			case ExperimentType::WindTunnelTest:
 			{
 				switch (runType)
 				{
@@ -312,7 +312,7 @@ namespace ARP::Model
 				}
 				break;
 			}
-			case ARP::Model::ExperimentType::CFD:
+			case ExperimentType::CFD:
 			{
 				title = "CFD, " + string("\\phi_{\\Pi}=") + std::to_string(gamma) + "^{\\circ}";
 				break;
@@ -325,12 +325,12 @@ namespace ARP::Model
 		{
 			switch (expType)
 			{
-			case ARP::Model::ExperimentType::WindTunnelTest:
+			case ExperimentType::WindTunnelTest:
 			{
 				title = "Run " + name + (useRe ? ", Re - " + ReStatusEnum::str(reStatus) : "") + ", #phi=" + std::to_string(gamma) + "#circ";
 				break;
 			}
-			case ARP::Model::ExperimentType::CFD:
+			case ExperimentType::CFD:
 			{
 				title = "CFD, " + string(", #phi=") + std::to_string(gamma) + "#circ";
 				break;

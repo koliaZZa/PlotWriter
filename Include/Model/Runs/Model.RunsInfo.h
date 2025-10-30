@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Include/Model/Runs/Model.RunResult.h"
 
-namespace ARP::Model
+namespace Model
 {
 	class RunsInfo
 	{

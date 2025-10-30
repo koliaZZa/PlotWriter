@@ -4,7 +4,7 @@
 #include "Include/Model/Runs/Model.RunResult.h"
 #include "Include/Model/Plots/Model.Graph.h"
 
-namespace ARP::Model
+namespace Model
 {
 	// Модель коллекции графиков
 	class PlotCollection : public Object
@@ -43,7 +43,7 @@ namespace ARP::Model
 		void WriteRuns();
 
 		// Создать модель графика
-		void CreatePlot(std::string iyName, string path, pair<double, double> yScale = {0.0, 0.0}, std::string iTitle = "");
+		void CreatePlot(std::string iyName, string path, pair<double, double> yScale = {0.0, 0.0}, std::string iTitle = "", std::string bannedRuns = "");
 		// Установить тип интерполяции
 		void SetInterpolType(InterpolTypeEnum iType) { interpolType = iType; };
 		// Установить ось X

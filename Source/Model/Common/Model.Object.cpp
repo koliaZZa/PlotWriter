@@ -1,6 +1,6 @@
 ﻿#include "Include/Model/Common/Model.Object.h"
 
-namespace ARP::Model
+namespace Model
 {
 	void Object::WriteHeader(rj::Document& doc, rj::MemoryPoolAllocator<>& allocator) const
 	{

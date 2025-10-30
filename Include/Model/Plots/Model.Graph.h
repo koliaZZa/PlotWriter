@@ -21,7 +21,7 @@
 
 using std::vector, std::function;
 
-namespace ARP::Model
+namespace Model
 {
 	// Функция для настройки осей в центре
 	void setupCentralAxes(TMultiGraph* mg, std::pair<double, double> xScale = {0.0, 0.0}, std::pair<double, double> yScale = {0.0, 0.0}, std::string xname = "", std::string yname = "");
@@ -68,7 +68,7 @@ namespace ARP::Model
 			return graph;
 		}
 
-		void AddLine(Model::Quantity x, Model::Quantity y, std::string grname, bool dotted = false);
+		void AddLine(Model::Quantity x, Model::Quantity y, std::string grname, bool dotted = false, bool onlyLine = false);
 
 		void AddLinePolar(Model::Quantity x, Model::Quantity y, std::string grname, bool first = false, bool dotted = false);
 

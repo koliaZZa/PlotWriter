@@ -1,6 +1,6 @@
 ﻿#include "Include/Model/Common/Model.Functions.h"
 
-namespace ARP::Model
+namespace Model
 {
 	Interpolation::Interpolation(vector<double> iVecX, vector<double> iVecY)
 	{
